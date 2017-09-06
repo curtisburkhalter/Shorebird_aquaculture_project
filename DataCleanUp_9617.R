@@ -57,6 +57,8 @@ RawCensus$x_SESA <- NULL
 RawCensus$x_RUTU <- NULL
 RawCensus$x <- NULL
 
+#drop all flock edge location and flock center location columns
+RawCensus <- RawCensus[, -grep("FEL.*|FCL.*", colnames(RawCensus))]
 
 
 
