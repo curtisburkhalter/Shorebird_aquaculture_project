@@ -4,6 +4,8 @@
 
 #call in required libraries
 library('janitor')  #package required to clean up column names automatically
+library('arm') #package written by A. Gelman that will automatically
+              #standardize all data by dividing by 2sd
 
 #set working directory
 setwd("~/Personal GHub/Shorebird_1617")
@@ -162,17 +164,36 @@ sampOT_NonTendRecs <- NonTendingRecs[sample(nrow(NonTendingRecs),900,replace = F
 predict_set <- rbind(sampOT_tendRecs,sampOT_NonTendRecs)
 fit_set <- OnlyTending[!rownames(OnlyTending) %in% rownames(predict_set),]
 
-#look at differences in # observations between years and pad
-#respective data frames with NAs if they differ
-diffNRows <-nrow(fit_set[fit_set$year == "2016",])-
-  nrow(fit_set[fit_set$year == "2017",])
-diffNRows
+#there are a different number of records between 2016 and 2017
+#so I will randomly subsampling the fitset records from 2017 so that
+#the number of records from 2016 and 2017 is the same
+fit_set16<- fit_set[fit_set$year==2016,]
+fit_set17 <- fit_set[fit_set$year==2017,]
+sampFS17 <- fit_set17[sample(nrow(fit_set17),nrow(fit_set16),replace = F),]
 
-NA_mat <-as.data.frame(matrix(nrow=-diffNRows,ncol=ncol(fit_set),NA))
-colnames(NA_mat) <- colnames(fit_set)
-NA_mat$year <- 2016
+#build final fit_set by combining the records from fit_set16
+#and sampFS17
 
-fit_set <-rbind(fit_set,NA_mat)
+fit_set<- rbind(fit_set16,sampFS17)
+fit_set16<-NULL
+fit_set17<-NULL
+
+#need to code the categorical variables as dummy variables 
+#to ease their coding in WinBUGS; This requires
+#code each level of the categorical variable as 0/1;
+#for this dataset it is NSH, Ntide
+#Bulkhead=2;Dune=4,Phragmites=6;Marsh=5;Creek=3;Woodland=7
+#Falling=1;Low=2,Rising=3
+fit_set$Bulk <- ifelse(fit_set$NSH == 2,1,0)
+fit_set$Dune <- ifelse(fit_set$NSH == 4,1,0)
+fit_set$Phrag <- ifelse(fit_set$NSH == 6,1,0)
+fit_set$Marsh <- ifelse(fit_set$NSH == 5,1,0)
+fit_set$Creek <- ifelse(fit_set$NSH == 3,1,0)
+fit_set$Woodland <- ifelse(fit_set$NSH == 7,1,0)
+
+fit_set$FT <- ifelse(fit_set$Ntide == 1, 1,0)
+fit_set$LT <- ifelse(fit_set$Ntide == 2, 1,0)
+fit_set$RT <- ifelse(fit_set$Ntide == 3, 1,0)
 
 #create species specific datasets from fit_set
 REKN <- fit_set[, -grep("RUTU.*|SESA.*|SAND.*|DUNL.*", colnames(fit_set))]
@@ -181,26 +202,7 @@ SESA <- fit_set[, -grep("RUTU.*|REKN.*|SAND.*|DUNL.*", colnames(fit_set))]
 SAND <- fit_set[, -grep("RUTU.*|SESA.*|REKN.*|DUNL.*", colnames(fit_set))]
 DUNL <- fit_set[, -grep("RUTU.*|SESA.*|SAND.*|REKN.*", colnames(fit_set))]
 
-#look at differences in # observations between years and pad
-#respective data frames with NAs if they differ
-diffNRows <-nrow(fit_set[fit_set$year == "2016",])-
-nrow(fit_set[fit_set$year == "2017",])
-diffNRows
 
-#to make the 2016 and 2017 samples the same size we
-#randomly sampled rows from the data frame 'OnlyTending'
-#OnlyTending16 <- OnlyTending[OnlyTending$year == 2016,]
-#OnlyTending17 <- OnlyTending[OnlyTending$year == 2017,]
-
-#sampOT17 <- OnlyTending17[sample(nrow(OnlyTending17),nrow(OnlyTending16),replace = F),]
-
-#OnlyTending <- rbind(OnlyTending16,sampOT17)
-
-#again look at differences in # observations between years and pad
-#respective data frames with NAs if they differ
-#diffNRows_1 <-nrow(OnlyTending[OnlyTending$year == "2016",])-
-#  nrow(OnlyTending[OnlyTending$year == "2017",])
-#diffNRows_1
 #create year specific datasets from species specific datasets
 REKN16 <- REKN[REKN$year == "2016",]
 REKN17 <- REKN[REKN$year == "2017",]
@@ -217,24 +219,111 @@ SAND17 <- SAND[SAND$year == "2017",]
 DUNL16 <- DUNL[DUNL$year == "2016",]
 DUNL17 <- DUNL[DUNL$year == "2017",]
 
-#set up combined spp data structure to be a 2-D array of the following
-#form y[i,j,k], where i = observation; j = species; k = year
+#set up 2 combined spp data structures to be a 2-D arrays of the following
+#form y[i,j], where i = observation; j = species; y16 holds
+#the 2016 data and y17 holds the 2017 data; need two separate arrays
+#because their is more data in 2017 than 2016 which leads to 
+#unbalanced array
 
-y <- cbind(REKN16[,grep("TIS.*",colnames(REKN16))],
-          REKN17[,grep("TIS.*",colnames(REKN17))],
+y16 <- cbind(REKN16[,grep("TIS.*",colnames(REKN16))],
           RUTU16[,grep("TIS.*",colnames(RUTU16))],
-          RUTU17[,grep("TIS.*",colnames(RUTU17))],
           SESA16[,grep("TIS.*",colnames(SESA16))],
-          SESA17[,grep("TIS.*",colnames(SESA17))],
           SAND16[,grep("TIS.*",colnames(SAND16))],
-          SAND17[,grep("TIS.*",colnames(SAND17))],
-          DUNL16[,grep("TIS.*",colnames(DUNL16))],
-          DUNL17[,grep("TIS.*",colnames(DUNL17))])
+          DUNL16[,grep("TIS.*",colnames(DUNL16))])
+          
 
-colnames(y) <- c("y[,1,1]","y[,1,2]",
-              "y[,2,1]","y[,2,2]",
-              "y[,3,1]","y[,3,2]",
-              "y[,4,1]","y[,4,2]",
-              "y[,5,1]","y[,5,2]")
+y17 <-  cbind(REKN17[,grep("TIS.*",colnames(REKN17))],
+              RUTU17[,grep("TIS.*",colnames(RUTU17))],
+              SESA17[,grep("TIS.*",colnames(SESA17))],
+              SAND17[,grep("TIS.*",colnames(SAND17))],
+              DUNL17[,grep("TIS.*",colnames(DUNL17))])
+             
+colnames(y16) <- c("y[,1,1]",
+              "y[,2,1]",
+              "y[,3,1]",
+              "y[,4,1]",
+              "y[,5,1]")
+              
 
-View(y)
+colnames(y17) <- c("y[,1,2]",
+                   "y[,2,2]",
+                   "y[,3,2]",
+                   "y[,4,2]",
+                   "y[,5,2]")
+                   
+
+yComb <- cbind(y16,y17)
+
+#need to standardize the data before using it in modeling
+#but before make sure all the covariate data is numeric
+#and not character; see Gelman 2008 for reasoning
+#behind scaling regression coefficients for numeric variables
+#that are not binary
+
+str(fit_set)
+fit_set$TS <- sub("2=4","24",fit_set$TS)
+
+fit_set$time <- as.numeric(fit_set$time)
+fit_set$TS <- as.integer(fit_set$TS)
+fit_set$nOM <- as.integer(fit_set$nOM)
+fit_set$raptor <- as.integer(fit_set$raptor)
+fit_set$plane <- as.integer(fit_set$plane)
+
+#subset the relevant covariates
+fit_set_covar <- fit_set[,c(2,3,4,5,11:19,22:31)]
+
+#the rescaling leaves the binary variables, including dummies,
+#as 0/1 and divides the continuous variables by 2sd
+FS_covarSTD <- apply(fit_set_covar[,c(1:11,13:23)],2,rescale, binary.inputs = "0/1")
+
+FS_covarSTD <- cbind(fit_set_covar[,12],FS_covarSTD)
+colnames(FS_covarSTD)[1] <- "year"
+FS_covarSTD <- as.data.frame(FS_covarSTD)
+
+#create two year specific covariate data sets
+Cov16 <- FS_covarSTD[FS_covarSTD$year == 2016,]
+Cov17 <- FS_covarSTD[FS_covarSTD$year == 2017,]
+Cov16$year <- NULL
+Cov17$year <- NULL
+
+
+covariate_names <- names(Cov16) 
+new_names16 <- new_names17 <- character()
+
+for (name in covariate_names) {
+  new_names16[name] <- c(paste(name,"[,1]",sep=""))
+  new_names17[name] <- c(paste(name,"[,2]",sep=""))
+  names(new_names16) <- names(new_names17) <- NULL
+}
+
+names(Cov16) <- new_names16
+names(Cov17) <- new_names17
+
+CovComb <- cbind(Cov16,Cov17)
+
+#for modeling in BUGS the binary variables cannot take on a
+#value of 0 so change all 0 to 1 and all 1 to 2.
+var <- colnames(CovComb)[c(5,14:22,27,36:44)]
+CovComb[,var] <- lapply(CovComb[,var],function(x) ifelse(x==1,2,1))
+
+#write out the cleaned count data sets that will be used for 
+#fitting the community models
+write.table(yComb,file=paste(pathtofiles,"DataForFitting/fit_countsCM.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+
+
+#write out the cleaned, standardized covariate data sets that will
+#be used for fitting the community models
+write.table(CovComb,file=paste(pathtofiles,"DataForFitting/fit_covarsCM.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+
+#subset the data to only include that of the REKN
+yREKN <- yComb[,c(1,6)]
+covREKN <- CovComb
+
+#combine the covariate data with the count data
+REKNfit<- cbind(yREKN,covREKN)
+
+#write out the cleaned, standardized covariate data sets that will
+#be used for fitting the single species REKN models
+write.table(REKNfit,file=paste(pathtofiles,"DataForFitting/fit_REKN.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+
+
