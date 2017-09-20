@@ -274,10 +274,13 @@ fit_set_covar <- fit_set[,c(2,3,4,5,11:19,22:31)]
 
 #the rescaling leaves the binary variables, including dummies,
 #as 0/1 and divides the continuous variables by 2sd
-FS_covarSTD <- apply(fit_set_covar[,c(1:11,13:23)],2,rescale, binary.inputs = "0/1")
+FS_covarSTD <- apply(fit_set_covar[,c(1:11,15:23)],2,rescale, binary.inputs = "0/1")
 
-FS_covarSTD <- cbind(fit_set_covar[,12],FS_covarSTD)
+FS_covarSTD <- cbind(fit_set_covar[,12:14],FS_covarSTD)
 colnames(FS_covarSTD)[1] <- "year"
+colnames(FS_covarSTD)[2] <- "Nsegment"
+colnames(FS_covarSTD)[3] <- "NWD"
+
 FS_covarSTD <- as.data.frame(FS_covarSTD)
 
 #create two year specific covariate data sets
@@ -296,14 +299,14 @@ for (name in covariate_names) {
   names(new_names16) <- names(new_names17) <- NULL
 }
 
-names(Cov16) <- new_names16
-names(Cov17) <- new_names17
-
+colnames(Cov16) <- new_names16
+colnames(Cov17) <- new_names17
+colnames(Cov16) <- gsub("`","",colnames(Cov16))
 CovComb <- cbind(Cov16,Cov17)
 
 #for modeling in BUGS the binary variables cannot take on a
 #value of 0 so change all 0 to 1 and all 1 to 2.
-var <- colnames(CovComb)[c(5,14:22,27,36:44)]
+var <- colnames(CovComb)[c(7,14:22,29,36:44)]
 CovComb[,var] <- lapply(CovComb[,var],function(x) ifelse(x==1,2,1))
 
 #write out the cleaned count data sets that will be used for 
@@ -322,8 +325,66 @@ covREKN <- CovComb
 #combine the covariate data with the count data
 REKNfit<- cbind(yREKN,covREKN)
 
+#reclassify data types that are incorrect in REKNfit
+REKNfit$`y[,1,1]`<-as.integer(REKNfit$`y[,1,1]`)
+REKNfit$`y[,1,2]`<-as.integer(REKNfit$`y[,1,2]`)
+REKNfit$`time[,1]`<-as.numeric(as.character(REKNfit$`time[,1]`))
+REKNfit$`AT[,1]`<-as.numeric(as.character(REKNfit$`AT[,1]`))
+REKNfit$`windS[,1]`<-as.numeric(as.character(REKNfit$`windS[,1]`))
+REKNfit$`TS[,1]`<-as.numeric(as.character(REKNfit$`TS[,1]`))
+REKNfit$`tending[,1]`<-as.integer(REKNfit$`tending[,1]`)
+REKNfit$`nOM[,1]`<-as.numeric(as.character(REKNfit$`nOM[,1]`))
+REKNfit$`nOtherP[,1]`<-as.numeric(as.character(REKNfit$`nOtherP[,1]`))
+REKNfit$`dog[,1]`<-as.numeric(as.character(REKNfit$`dog[,1]`))
+REKNfit$`raptor[,1]`<-as.numeric(as.character(REKNfit$`raptor[,1]`))
+REKNfit$`plane[,1]`<-as.numeric(as.character(REKNfit$`plane[,1]`))
+REKNfit$`day[,1]`<-as.numeric(as.character(REKNfit$`day[,1]`))
+REKNfit$`Nsegment[,1]`<-as.integer(REKNfit$`Nsegment[,1]`)
+REKNfit$`NWD[,1]`<-as.integer(as.character(REKNfit$`NWD[,1]`))
+REKNfit$`Bulk[,1]`<-as.integer(REKNfit$`Bulk[,1]`)
+REKNfit$`Dune[,1]`<-as.integer(REKNfit$`Dune[,1]`)
+REKNfit$`Phrag[,1]`<-as.integer(REKNfit$`Phrag[,1]`)
+REKNfit$`Marsh[,1]`<-as.integer(REKNfit$`Marsh[,1]`)
+REKNfit$`Creek[,1]`<-as.integer(REKNfit$`Creek[,1]`)
+REKNfit$`Woodland[,1]`<-as.integer(REKNfit$`Woodland[,1]`)
+REKNfit$`FT[,1]`<-as.integer(REKNfit$`FT[,1]`)
+REKNfit$`LT[,1]`<-as.integer(REKNfit$`LT[,1]`)
+REKNfit$`RT[,1]`<-as.integer(REKNfit$`RT[,1]`)
+REKNfit$`time[,2]`<-as.numeric(as.character(REKNfit$`time[,2]`))
+REKNfit$`AT[,2]`<-as.numeric(as.character(REKNfit$`AT[,2]`))
+REKNfit$`windS[,2]`<-as.numeric(as.character(REKNfit$`windS[,2]`))
+REKNfit$`TS[,2]`<-as.numeric(as.character(REKNfit$`TS[,2]`))
+REKNfit$`tending[,2]`<-as.integer(REKNfit$`tending[,2]`)
+REKNfit$`nOM[,2]`<-as.numeric(as.character(REKNfit$`nOM[,2]`))
+REKNfit$`nOtherP[,2]`<-as.numeric(as.character(REKNfit$`nOtherP[,2]`))
+REKNfit$`dog[,2]`<-as.numeric(as.character(REKNfit$`dog[,2]`))
+REKNfit$`raptor[,2]`<-as.numeric(as.character(REKNfit$`raptor[,2]`))
+REKNfit$`plane[,2]`<-as.numeric(as.character(REKNfit$`plane[,2]`))
+REKNfit$`day[,2]`<-as.numeric(as.character(REKNfit$`day[,2]`))
+REKNfit$`Nsegment[,2]`<-as.integer(REKNfit$`Nsegment[,2]`)
+REKNfit$`NWD[,2]`<-as.integer(REKNfit$`NWD[,2]`)
+REKNfit$`Bulk[,2]`<-as.integer(REKNfit$`Bulk[,2]`)
+REKNfit$`Dune[,2]`<-as.integer(REKNfit$`Dune[,2]`)
+REKNfit$`Phrag[,2]`<-as.integer(REKNfit$`Phrag[,2]`)
+REKNfit$`Marsh[,2]`<-as.integer(REKNfit$`Marsh[,2]`)
+REKNfit$`Creek[,2]`<-as.integer(REKNfit$`Creek[,2]`)
+REKNfit$`Woodland[,2]`<-as.integer(REKNfit$`Woodland[,2]`)
+REKNfit$`FT[,2]`<-as.integer(REKNfit$`FT[,2]`)
+REKNfit$`LT[,2]`<-as.integer(REKNfit$`LT[,2]`)
+REKNfit$`RT[,2]`<-as.integer(REKNfit$`RT[,2]`)
+
 #write out the cleaned, standardized covariate data sets that will
 #be used for fitting the single species REKN models
 write.table(REKNfit,file=paste(pathtofiles,"DataForFitting/fit_REKN.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
 
+#write up some initial values for fit statistic "NREKN.new","seg_rand","WD_rand"
+NREKN.new <- rep(1,times=nrow(REKNfit))
+NREKN.new <- cbind(as.integer(NREKN.new),as.integer(NREKN.new))
+colnames(NREKN.new)<-c("NREKN.new[,1]","NREKN.new[,2]")
 
+seg_rand<-as.integer(rep(1,times=152))
+WD_rand<-as.integer(rep(1,times=19))
+
+write.table(NREKN.new,file=paste(pathtofiles,"DataForFitting/NREKN.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(seg_rand,file=paste(pathtofiles,"DataForFitting/seg_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(WD_rand,file=paste(pathtofiles,"DataForFitting/WD_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
