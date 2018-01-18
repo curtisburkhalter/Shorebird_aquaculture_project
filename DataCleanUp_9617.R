@@ -3,37 +3,53 @@
 
 
 #call in required libraries
-library('janitor')  #package required to clean up column names automatically
-library('arm') #package written by A. Gelman that will automatically
-              #standardize all data by dividing by 2sd
+suppressMessages(library('janitor'))  #package required to clean up column names automatically
+suppressMessages(library('arm')) #package written by A. Gelman that will automatically
+                                  #standardize all data by dividing by 2sd
+suppressMessages(library('tidyverse'))
 
 #set working directory
-setwd("~/Personal GHub/Shorebird_1617")
-pathtofiles <- "E:/Shorebird Project/ShorebirdModel2017/"
+setwd("~/GitHub/Shorebird_aquaculture_project")
+pathtofiles <- "G:/Shorebird Project/ShorebirdModel2017/"
 
 #read in raw census data file
-RawCensus <- read.delim(file=paste(pathtofiles,"CensusFlatFile.txt",sep=""),header=TRUE, stringsAsFactors = FALSE) %>% clean_names()
-
-#remove columns corresponding to observations of less frequent species
-RawCensus <- RawCensus[,c(1:46,67:72)]
-
-#Need to clean up the column headings
-#add suffix "_REKN" to columns corresponding to REKN data (i.e., RawCensus[12:18])
-names(RawCensus)[12:18] <- paste(colnames(RawCensus[12:18]),"_REKN",sep="")
+RawCensus <- read.delim(file=paste(pathtofiles,"Census201617_Updated.txt",sep=""),header=TRUE, stringsAsFactors = FALSE) %>% clean_names()
 View(RawCensus)
 
-#change column names so that any column name ending with "_1" to "_RUTU"
-#change column names so that any column name ending with "_2" to "_SESA"
-#change column names so that any column name ending with "_3" to "_SAND"
-#change column names so that any column name ending with "_4" to "_DUNL"
+#need to attach species names to column headings for each set of observations
+#REKN columns 14-20
+#RUTU columsn 21-27
+#SESA columns 28-34
+#SAND columns 35-41
+#DUNL columns 42-48
+
+RawCensus[1,14:20] <- paste("REKN",RawCensus[1,14:20],sep=" ")
+RawCensus[1,21:27] <- paste("RUTU",RawCensus[1,21:27],sep=" ")
+RawCensus[1,28:34] <- paste("SESA",RawCensus[1,28:34],sep=" ")
+RawCensus[1,35:41] <- paste("SAND",RawCensus[1,35:41],sep=" ")
+RawCensus[1,42:48] <- paste("DUNL",RawCensus[1,42:48],sep=" ")
+
+#replace header column with column entries from row 1; these
+#should have been the column headers in the file
+colnames(RawCensus) <- RawCensus[1,]
+
+#Remove all column entries for row 1
+RawCensus <- RawCensus[-1,]
+
+#remove columns corresponding to observations of less frequent species 
+#columns 50-69; also remove notes columns 77-79
+RawCensus <- RawCensus[,-(c(50:69,77:79))]
 
 
-names(RawCensus) <- gsub("\\_1","_RUTU",names(RawCensus))
-names(RawCensus) <- gsub("\\_2","_SESA",names(RawCensus))
-names(RawCensus) <- gsub("\\_3","_SAND",names(RawCensus))
-names(RawCensus) <- gsub("\\_4","_DUNL",names(RawCensus))
-names(RawCensus) <- gsub("shoreline_.*","shore_hab",names(RawCensus))
-names(RawCensus) <- gsub("date_.*","date",names(RawCensus))
+#change column names to format that I like
+RawCensus <- rename(RawCensus,
+"shore_hab" = "Shoreline Habitat",
+"date" = "Date (MM/DD/YYYY)",
+"time" = "Time (24 hr. clock)")
+
+#####PICK UP HERE LATER#######
+
+names(RawCensus) <- gsub("Date_.*","date",names(RawCensus))
 names(RawCensus) <- gsub("time_.*","time",names(RawCensus))
 names(RawCensus) <- gsub("tide_.*","tide",names(RawCensus))
 names(RawCensus) <- gsub("wind_direction.*","windD",names(RawCensus))
