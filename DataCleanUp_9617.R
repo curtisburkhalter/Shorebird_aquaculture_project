@@ -156,47 +156,6 @@ OnlyTending$segment <- OnlyTending$shore_hab <- OnlyTending$tide <- OnlyTending$
 OnlyTending$`Julian Day` <- NULL
 OnlyTending$`Census #` <- NULL
 
-# #BLOCK COMMENT THIS SECTION OUT; IT NO LONGER MAKES SENSE TO DO IT
-# #THIS WAY; FINAL DATASET IS COMBINED ACROSS YEARS
-# #create 2 datasets that we will be used to fit the models and 
-# #test predictions of the models
-# 
-# #to make the fit sets comparable in terms of the number 
-# #of records that actually have tending occurring we look 
-# #at the number of times that tending equals "1"
-# 
-# tending_events <- length(OnlyTending$tending[OnlyTending$tending == 1])
-# tending_events
-# 
-# #tending events make up roughly 10% of all records
-# #so when I create the prediction set records with tending need
-# #to make up about 10% of all samples; I'm going to subset
-# #1000 of the records in 'OnlyTending' so 100 should contain
-# #records with tending in them
-# 
-# TendingRecs <- OnlyTending[OnlyTending$tending == 1,]
-# sampOT_tendRecs <- TendingRecs[sample(nrow(TendingRecs),100,replace = F),]
-# 
-# NonTendingRecs <- OnlyTending[OnlyTending$tending == 0,]
-# sampOT_NonTendRecs <- NonTendingRecs[sample(nrow(NonTendingRecs),900,replace = F),]
-# 
-# predict_set <- rbind(sampOT_tendRecs,sampOT_NonTendRecs)
-# fit_set <- OnlyTending[!rownames(OnlyTending) %in% rownames(predict_set),]
-# 
-# #there are a different number of records between 2016 and 2017
-# #so I will randomly subsampling the fitset records from 2017 so that
-# #the number of records from 2016 and 2017 is the same
-# fit_set16<- fit_set[fit_set$year==2016,]
-# fit_set17 <- fit_set[fit_set$year==2017,]
-# sampFS17 <- fit_set17[sample(nrow(fit_set17),nrow(fit_set16),replace = F),]
-# 
-# #build final fit_set by combining the records from fit_set16
-# #and sampFS17
-# 
-# fit_set<- rbind(fit_set16,sampFS17)
-# fit_set16<-NULL
-# fit_set17<-NULL
-
 fit_set <- OnlyTending
 
 #need to code the categorical variables as dummy variables 
@@ -204,7 +163,10 @@ fit_set <- OnlyTending
 #code each level of the categorical variable as 0/1;
 #for this dataset it is NSH, Ntide
 #Bulkhead=2;Dune=4,Phragmites=6;Marsh=5;Creek=3;Woodland=7
-#Falling=1;Low=2,Rising=3
+#Falling=1;Low=2,Rising=3;
+#in doing the coding this way the regression coefficients
+#represent the mean value for each of the respective shoreline types
+#and the model intercept represents the common slope across all habitat types
 fit_set$Bulk <- ifelse(fit_set$NSH == 2,1,0)
 fit_set$Dune <- ifelse(fit_set$NSH == 4,1,0)
 fit_set$Phrag <- ifelse(fit_set$NSH == 6,1,0)
@@ -217,57 +179,6 @@ fit_set$LT <- ifelse(fit_set$Ntide == 2, 1,0)
 fit_set$RT <- ifelse(fit_set$Ntide == 3, 1,0)
 
  
-# #create year specific datasets from species specific datasets
-# REKN16 <- REKN[REKN$year == "2016",]
-# REKN17 <- REKN[REKN$year == "2017",]
-# 
-# RUTU16 <- RUTU[RUTU$year == "2016",]
-# RUTU17 <- RUTU[RUTU$year == "2017",]
-# 
-# SESA16 <- SESA[SESA$year == "2016",]
-# SESA17 <- SESA[SESA$year == "2017",]
-# 
-# SAND16 <- SAND[SAND$year == "2016",]
-# SAND17 <- SAND[SAND$year == "2017",]
-# 
-# DUNL16 <- DUNL[DUNL$year == "2016",]
-# DUNL17 <- DUNL[DUNL$year == "2017",]
-# 
-# #set up 2 combined spp data structures to be a 2-D arrays of the following
-# #form y[i,j], where i = observation; j = species; y16 holds
-# #the 2016 data and y17 holds the 2017 data; need two separate arrays
-# #because their is more data in 2017 than 2016 which leads to 
-# #unbalanced array
-# 
-# y16 <- cbind(REKN16[,grep("TIS.*",colnames(REKN16))],
-#           RUTU16[,grep("TIS.*",colnames(RUTU16))],
-#           SESA16[,grep("TIS.*",colnames(SESA16))],
-#           SAND16[,grep("TIS.*",colnames(SAND16))],
-#           DUNL16[,grep("TIS.*",colnames(DUNL16))])
-#           
-# 
-# y17 <-  cbind(REKN17[,grep("TIS.*",colnames(REKN17))],
-#               RUTU17[,grep("TIS.*",colnames(RUTU17))],
-#               SESA17[,grep("TIS.*",colnames(SESA17))],
-#               SAND17[,grep("TIS.*",colnames(SAND17))],
-#               DUNL17[,grep("TIS.*",colnames(DUNL17))])
-#              
-# colnames(y16) <- c("y[,1,1]",
-#               "y[,2,1]",
-#               "y[,3,1]",
-#               "y[,4,1]",
-#               "y[,5,1]")
-#               
-# 
-# colnames(y17) <- c("y[,1,2]",
-#                    "y[,2,2]",
-#                    "y[,3,2]",
-#                    "y[,4,2]",
-#                    "y[,5,2]")
-#                    
-# 
-# yComb <- cbind(y16,y17)
-
 #need to standardize the data before using it in modeling
 #but before make sure all the covariate data is numeric
 #and not character; see Gelman 2008 for reasoning
@@ -381,101 +292,69 @@ colnames(SAND_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 DUNL_covarSTD <- cbind(DUNL_set_covar[,14:16],DUNL_covarSTD)
 colnames(DUNL_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
-FS_covarSTD <- as.data.frame(FS_covarSTD)
+#the rescaling process resulted in certain variables being converted to NaN
+#b/c they only had 0's as the value; need to fix these for each of the 
+#standardized covariate dataframes
+is.nan.data.frame <- function(x)
+do.call(cbind, lapply(x, is.nan))
 
-# #create two year specific covariate data sets
-# Cov16 <- FS_covarSTD[FS_covarSTD$year == 2016,]
-# Cov17 <- FS_covarSTD[FS_covarSTD$year == 2017,]
-# Cov16$year <- NULL
-# Cov17$year <- NULL
+REKN_covarSTD[is.nan.data.frame(REKN_covarSTD)] <- 0
+RUTU_covarSTD[is.nan.data.frame(RUTU_covarSTD)] <- 0
+SESA_covarSTD[is.nan.data.frame(SESA_covarSTD)] <- 0
+SAND_covarSTD[is.nan.data.frame(SAND_covarSTD)] <- 0
+DUNL_covarSTD[is.nan.data.frame(DUNL_covarSTD)] <- 0
 
-# 
-# covariate_names <- names(Cov16) 
-# new_names16 <- new_names17 <- character()
-# 
-# for (name in covariate_names) {
-#   new_names16[name] <- c(paste(name,"[,1]",sep=""))
-#   new_names17[name] <- c(paste(name,"[,2]",sep=""))
-#   names(new_names16) <- names(new_names17) <- NULL
-# }
-# 
-# colnames(Cov16) <- new_names16
-# colnames(Cov17) <- new_names17
-# colnames(Cov16) <- gsub("`","",colnames(Cov16))
-# CovComb <- cbind(Cov16,Cov17)
 
-#for modeling in BUGS the binary variables cannot take on a
+#for modeling in JAGS the binary variables cannot take on a
 #value of 0 so change all 0 to 1 and all 1 to 2.
-var <- colnames(CovComb)[c(7,14:22,29,36:44)]
-CovComb[,var] <- lapply(CovComb[,var],function(x) ifelse(x==1,2,1))
+#write function that checks whether a column is binary
+#specifically the functions says 'are all values in 'x' within the sequence 0 to 1
+binary_check <- function(x) { all(x %in% 0:1) }
 
-#write out the cleaned count data sets that will be used for 
-#fitting the community models
-write.table(yComb,file=paste(pathtofiles,"DataForFitting/fit_countsCM.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+#apply the binary_check function to subset the column names of a species
+#standardized covariate dataframe if they are binary
+REKN_Vars <- colnames(REKN_covarSTD)[apply(REKN_covarSTD,2,binary_check)]
 
+#Using only the subsetted columns names for those binary variables now
+#change the 0's to 1's and 1's to 2's
+REKN_covarSTD[,REKN_Vars] <- lapply(REKN_covarSTD[,REKN_Vars],function(x) ifelse(x==1,2,1))
 
-#write out the cleaned, standardized covariate data sets that will
-#be used for fitting the community models
-write.table(CovComb,file=paste(pathtofiles,"DataForFitting/fit_covarsCM.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+#repeat for the other 4 species
+RUTU_Vars <- colnames(RUTU_covarSTD)[apply(RUTU_covarSTD,2,binary_check)]
+RUTU_covarSTD[,RUTU_Vars] <- lapply(RUTU_covarSTD[,RUTU_Vars],function(x) ifelse(x==1,2,1))
 
-#subset the data to only include that of the REKN
-yREKN <- yComb[,c(1,6)]
-covREKN <- CovComb
+SESA_Vars <- colnames(SESA_covarSTD)[apply(SESA_covarSTD,2,binary_check)]
+SESA_covarSTD[,SESA_Vars] <- lapply(SESA_covarSTD[,SESA_Vars],function(x) ifelse(x==1,2,1))
 
-#combine the covariate data with the count data
-REKNfit<- cbind(yREKN,covREKN)
+SAND_Vars <- colnames(SAND_covarSTD)[apply(SAND_covarSTD,2,binary_check)]
+SAND_covarSTD[,SAND_Vars] <- lapply(SAND_covarSTD[,SAND_Vars],function(x) ifelse(x==1,2,1))
 
-#reclassify data types that are incorrect in REKNfit
-REKNfit$`y[,1,1]`<-as.integer(REKNfit$`y[,1,1]`)
-REKNfit$`y[,1,2]`<-as.integer(REKNfit$`y[,1,2]`)
-REKNfit$`time[,1]`<-as.numeric(as.character(REKNfit$`time[,1]`))
-REKNfit$`AT[,1]`<-as.numeric(as.character(REKNfit$`AT[,1]`))
-REKNfit$`windS[,1]`<-as.numeric(as.character(REKNfit$`windS[,1]`))
-REKNfit$`TS[,1]`<-as.numeric(as.character(REKNfit$`TS[,1]`))
-REKNfit$`tending[,1]`<-as.integer(REKNfit$`tending[,1]`)
-REKNfit$`nOM[,1]`<-as.numeric(as.character(REKNfit$`nOM[,1]`))
-REKNfit$`nOtherP[,1]`<-as.numeric(as.character(REKNfit$`nOtherP[,1]`))
-REKNfit$`dog[,1]`<-as.numeric(as.character(REKNfit$`dog[,1]`))
-REKNfit$`raptor[,1]`<-as.numeric(as.character(REKNfit$`raptor[,1]`))
-REKNfit$`plane[,1]`<-as.numeric(as.character(REKNfit$`plane[,1]`))
-REKNfit$`day[,1]`<-as.numeric(as.character(REKNfit$`day[,1]`))
-REKNfit$`Nsegment[,1]`<-as.integer(REKNfit$`Nsegment[,1]`)
-REKNfit$`NWD[,1]`<-as.integer(as.character(REKNfit$`NWD[,1]`))
-REKNfit$`Bulk[,1]`<-as.integer(REKNfit$`Bulk[,1]`)
-REKNfit$`Dune[,1]`<-as.integer(REKNfit$`Dune[,1]`)
-REKNfit$`Phrag[,1]`<-as.integer(REKNfit$`Phrag[,1]`)
-REKNfit$`Marsh[,1]`<-as.integer(REKNfit$`Marsh[,1]`)
-REKNfit$`Creek[,1]`<-as.integer(REKNfit$`Creek[,1]`)
-REKNfit$`Woodland[,1]`<-as.integer(REKNfit$`Woodland[,1]`)
-REKNfit$`FT[,1]`<-as.integer(REKNfit$`FT[,1]`)
-REKNfit$`LT[,1]`<-as.integer(REKNfit$`LT[,1]`)
-REKNfit$`RT[,1]`<-as.integer(REKNfit$`RT[,1]`)
-REKNfit$`time[,2]`<-as.numeric(as.character(REKNfit$`time[,2]`))
-REKNfit$`AT[,2]`<-as.numeric(as.character(REKNfit$`AT[,2]`))
-REKNfit$`windS[,2]`<-as.numeric(as.character(REKNfit$`windS[,2]`))
-REKNfit$`TS[,2]`<-as.numeric(as.character(REKNfit$`TS[,2]`))
-REKNfit$`tending[,2]`<-as.integer(REKNfit$`tending[,2]`)
-REKNfit$`nOM[,2]`<-as.numeric(as.character(REKNfit$`nOM[,2]`))
-REKNfit$`nOtherP[,2]`<-as.numeric(as.character(REKNfit$`nOtherP[,2]`))
-REKNfit$`dog[,2]`<-as.numeric(as.character(REKNfit$`dog[,2]`))
-REKNfit$`raptor[,2]`<-as.numeric(as.character(REKNfit$`raptor[,2]`))
-REKNfit$`plane[,2]`<-as.numeric(as.character(REKNfit$`plane[,2]`))
-REKNfit$`day[,2]`<-as.numeric(as.character(REKNfit$`day[,2]`))
-REKNfit$`Nsegment[,2]`<-as.integer(REKNfit$`Nsegment[,2]`)
-REKNfit$`NWD[,2]`<-as.integer(REKNfit$`NWD[,2]`)
-REKNfit$`Bulk[,2]`<-as.integer(REKNfit$`Bulk[,2]`)
-REKNfit$`Dune[,2]`<-as.integer(REKNfit$`Dune[,2]`)
-REKNfit$`Phrag[,2]`<-as.integer(REKNfit$`Phrag[,2]`)
-REKNfit$`Marsh[,2]`<-as.integer(REKNfit$`Marsh[,2]`)
-REKNfit$`Creek[,2]`<-as.integer(REKNfit$`Creek[,2]`)
-REKNfit$`Woodland[,2]`<-as.integer(REKNfit$`Woodland[,2]`)
-REKNfit$`FT[,2]`<-as.integer(REKNfit$`FT[,2]`)
-REKNfit$`LT[,2]`<-as.integer(REKNfit$`LT[,2]`)
-REKNfit$`RT[,2]`<-as.integer(REKNfit$`RT[,2]`)
+DUNL_Vars <- colnames(DUNL_covarSTD)[apply(DUNL_covarSTD,2,binary_check)]
+DUNL_covarSTD[,DUNL_Vars] <- lapply(DUNL_covarSTD[,DUNL_Vars],function(x) ifelse(x==1,2,1))
 
-#write out the cleaned, standardized covariate data sets that will
-#be used for fitting the single species REKN models
-write.table(REKNfit,file=paste(pathtofiles,"DataForFitting/fit_REKN.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+#combine the species-specific counts with their standardized covariates
+REKN_final <- cbind(REKN$`REKN TIS`,REKN_covarSTD)
+colnames(REKN_final)[1] <- "REKN"
+
+RUTU_final <- cbind(RUTU$`RUTU TIS`,RUTU_covarSTD)
+colnames(RUTU_final)[1] <- "RUTU"
+
+SESA_final <- cbind(SESA$`SESA TIS`,SESA_covarSTD)
+colnames(SESA_final)[1] <- "SESA"
+
+SAND_final <- cbind(SAND$`SAND TIS`,SAND_covarSTD)
+colnames(SAND_final)[1] <- "SAND"
+
+DUNL_final <- cbind(DUNL$`DUNL TIS`,DUNL_covarSTD)
+colnames(DUNL_final)[1] <- "DUNL"
+
+#write out the cleaned data sets that will
+#be used for fitting the models
+write_tsv(REKN_final,path=paste(pathtofiles,"DataForFitting/REKN_fitting012818.txt",sep=""),col_names=TRUE)
+write_tsv(RUTU_final,path=paste(pathtofiles,"DataForFitting/RUTU_fitting012818.txt",sep=""),col_names=TRUE)
+write_tsv(SESA_final,path=paste(pathtofiles,"DataForFitting/SESA_fitting012818.txt",sep=""),col_names=TRUE)
+write_tsv(SAND_final,path=paste(pathtofiles,"DataForFitting/SAND_fitting012818.txt",sep=""),col_names=TRUE)
+write_tsv(DUNL_final,path=paste(pathtofiles,"DataForFitting/DUNL_fitting012818.txt",sep=""),col_names=TRUE)
 
 #write up some initial values for fit statistic "NREKN.new","seg_rand","WD_rand"
 NREKN.new <- rep(1,times=nrow(REKNfit))
