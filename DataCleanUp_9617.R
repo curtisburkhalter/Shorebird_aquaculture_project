@@ -357,13 +357,43 @@ write_tsv(SAND_final,path=paste(pathtofiles,"DataForFitting/SAND_fitting012818.t
 write_tsv(DUNL_final,path=paste(pathtofiles,"DataForFitting/DUNL_fitting012818.txt",sep=""),col_names=TRUE)
 
 #write up some initial values for fit statistic "NREKN.new","seg_rand","WD_rand"
-NREKN.new <- rep(1,times=nrow(REKNfit))
-NREKN.new <- cbind(as.integer(NREKN.new),as.integer(NREKN.new))
-colnames(NREKN.new)<-c("NREKN.new[,1]","NREKN.new[,2]")
+NREKN.new <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(NREKN.new)<-"NREKN.new[]"
 
-seg_rand<-as.integer(rep(1,times=152))
-WD_rand<-as.integer(rep(1,times=19))
+NRUTU.new <- as.data.frame(rep(1,times=nrow(RUTU_final)))
+colnames(NRUTU.new)<-"NRUTU.new[]"
 
-write.table(NREKN.new,file=paste(pathtofiles,"DataForFitting/NREKN.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(seg_rand,file=paste(pathtofiles,"DataForFitting/seg_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(WD_rand,file=paste(pathtofiles,"DataForFitting/WD_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+NSESA.new <- as.data.frame(rep(1,times=nrow(SESA_final)))
+colnames(NSESA.new)<-"NSESA.new[]"
+
+NSAND.new <- as.data.frame(rep(1,times=nrow(SAND_final)))
+colnames(NSAND.new)<-"NSAND.new[]"
+
+NDUNL.new <- as.data.frame(rep(1,times=nrow(DUNL_final)))
+colnames(NDUNL.new)<-"NDUNL.new[]"
+
+seg_rand <- as.data.frame(as.integer(rep(1,times=length(unique(REKN_final$Nsegment)))))
+colnames(seg_rand) <- "seg_rand[]"
+
+WD_rand <- as.data.frame(as.integer(rep(1,time=length(unique(REKN_final$NWD)))))
+colnames(WD_rand) <- "WD_rand[]"
+
+w <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(w)<-"w[]"
+
+eps <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(eps)<-"eps[]"
+
+write.table(NREKN.new,file=paste(pathtofiles,"InitialValuesFiles/NREKN.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(NRUTU.new,file=paste(pathtofiles,"InitialValuesFiles/NRUTU.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(NSESA.new,file=paste(pathtofiles,"InitialValuesFiles/NSESA.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(NSAND.new,file=paste(pathtofiles,"InitialValuesFiles/NSAND.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(NDUNL.new,file=paste(pathtofiles,"InitialValuesFiles/NDUNL.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+
+write.table(seg_rand,file=paste(pathtofiles,"InitialValuesFiles/seg_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(WD_rand,file=paste(pathtofiles,"InitialValuesFiles/WD_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(w,file=paste(pathtofiles,"InitialValuesFiles/w_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write.table(eps,file=paste(pathtofiles,"InitialValuesFiles/eps_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+
+#BEFORE ANY OF THE FILES CAN BE USED IN JAGS THE WORD "END" HAS TO BE ADDED
+#TO THE LAST ROW AND THE FILES SHOULD BE LEFT JUSTIFIED
