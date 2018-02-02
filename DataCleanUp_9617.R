@@ -217,79 +217,107 @@ DUNL <- fit_set[, -grep("RUTU.*|SESA.*|SAND.*|REKN.*", colnames(fit_set))]
 #"2" = DC5; "3" = DC6; "4" = DC7, "5" = DC8;
 REKN$`REKN FEDR` <- ifelse(REKN$`REKN FEDR`=="O","0",REKN$`REKN FEDR`)
 
-RUTU$DC1 <- ifelse(RUTU$`RUTU FEDR` == "~",1,0)
-RUTU$DC2 <- ifelse(RUTU$`RUTU FEDR` == "+",1,0)
-RUTU$DC3 <- ifelse(RUTU$`RUTU FEDR` == "0",1,0)
-RUTU$DC4 <- ifelse(RUTU$`RUTU FEDR` == "1",1,0)
-RUTU$DC5 <- ifelse(RUTU$`RUTU FEDR` == "2",1,0)
-RUTU$DC6 <- ifelse(RUTU$`RUTU FEDR` == "3",1,0)
-RUTU$DC7 <- ifelse(RUTU$`RUTU FEDR` == "4",1,0)
-RUTU$DC8 <- ifelse(RUTU$`RUTU FEDR` == "5",1,0)
+colnames(REKN)[6] <- "FEDR"
+colnames(RUTU)[6] <- "FEDR"
+colnames(SESA)[6] <- "FEDR"
+colnames(SAND)[6] <- "FEDR"
+colnames(DUNL)[6] <- "FEDR"
 
-SESA$DC1 <- ifelse(SESA$`SESA FEDR` == "~",1,0)
-SESA$DC2 <- ifelse(SESA$`SESA FEDR` == "+",1,0)
-SESA$DC3 <- ifelse(SESA$`SESA FEDR` == "0",1,0)
-SESA$DC4 <- ifelse(SESA$`SESA FEDR` == "1",1,0)
-SESA$DC5 <- ifelse(SESA$`SESA FEDR` == "2",1,0)
-SESA$DC6 <- ifelse(SESA$`SESA FEDR` == "3",1,0)
-SESA$DC7 <- ifelse(SESA$`SESA FEDR` == "4",1,0)
-SESA$DC8 <- ifelse(SESA$`SESA FEDR` == "5",1,0)
 
-SAND$DC1 <- ifelse(SAND$`SAND FEDR` == "~",1,0)
-SAND$DC2 <- ifelse(SAND$`SAND FEDR` == "+",1,0)
-SAND$DC3 <- ifelse(SAND$`SAND FEDR` == "0",1,0)
-SAND$DC4 <- ifelse(SAND$`SAND FEDR` == "1",1,0)
-SAND$DC5 <- ifelse(SAND$`SAND FEDR` == "2",1,0)
-SAND$DC6 <- ifelse(SAND$`SAND FEDR` == "3",1,0)
-SAND$DC7 <- ifelse(SAND$`SAND FEDR` == "4",1,0)
-SAND$DC8 <- ifelse(SAND$`SAND FEDR` == "5",1,0)
+REKN$FEDR <- ifelse(REKN$FEDR == "~", "6", REKN$FEDR)
+REKN$FEDR <- ifelse(REKN$FEDR == "+", "7", REKN$FEDR)
 
-DUNL$DC1 <- ifelse(DUNL$`DUNL FEDR` == "~",1,0)
-DUNL$DC2 <- ifelse(DUNL$`DUNL FEDR` == "+",1,0)
-DUNL$DC3 <- ifelse(DUNL$`DUNL FEDR` == "0",1,0)
-DUNL$DC4 <- ifelse(DUNL$`DUNL FEDR` == "1",1,0)
-DUNL$DC5 <- ifelse(DUNL$`DUNL FEDR` == "2",1,0)
-DUNL$DC6 <- ifelse(DUNL$`DUNL FEDR` == "3",1,0)
-DUNL$DC7 <- ifelse(DUNL$`DUNL FEDR` == "4",1,0)
-DUNL$DC8 <- ifelse(DUNL$`DUNL FEDR` == "5",1,0)
+RUTU$FEDR <- ifelse(RUTU$FEDR == "~", "6", RUTU$FEDR)
+RUTU$FEDR <- ifelse(RUTU$FEDR == "+", "7", RUTU$FEDR)
 
-REKN$DC1 <- ifelse(REKN$`REKN FEDR` == "~",1,0)
-REKN$DC2 <- ifelse(REKN$`REKN FEDR` == "+",1,0)
-REKN$DC3 <- ifelse(REKN$`REKN FEDR` == "0",1,0)
-REKN$DC4 <- ifelse(REKN$`REKN FEDR` == "1",1,0)
-REKN$DC5 <- ifelse(REKN$`REKN FEDR` == "2",1,0)
-REKN$DC6 <- ifelse(REKN$`REKN FEDR` == "3",1,0)
-REKN$DC7 <- ifelse(REKN$`REKN FEDR` == "4",1,0)
-REKN$DC8 <- ifelse(REKN$`REKN FEDR` == "5",1,0)
+SESA$FEDR <- ifelse(SESA$FEDR == "~", "6", SESA$FEDR)
+SESA$FEDR <- ifelse(SESA$FEDR == "+", "7", SESA$FEDR)
+
+SAND$FEDR <- ifelse(SAND$FEDR == "~", "6", SAND$FEDR)
+SAND$FEDR <- ifelse(SAND$FEDR == "+", "7", SAND$FEDR)
+
+DUNL$FEDR <- ifelse(DUNL$FEDR == "~", "6", DUNL$FEDR)
+DUNL$FEDR <- ifelse(DUNL$FEDR == "+", "7", DUNL$FEDR)
+
+REKN$FEDR <- as.numeric(REKN$FEDR)
+RUTU$FEDR <- as.numeric(RUTU$FEDR)
+SESA$FEDR <- as.numeric(SESA$FEDR)
+SAND$FEDR <- as.numeric(SAND$FEDR)
+DUNL$FEDR <- as.numeric(DUNL$FEDR)
+
+RUTU$DC1 <- ifelse(RUTU$FEDR == 6,1,0)
+RUTU$DC2 <- ifelse(RUTU$FEDR == 7,1,0)
+RUTU$DC3 <- ifelse(RUTU$FEDR == 0,1,0)
+RUTU$DC4 <- ifelse(RUTU$FEDR == 1,1,0)
+RUTU$DC5 <- ifelse(RUTU$FEDR == 2,1,0)
+RUTU$DC6 <- ifelse(RUTU$FEDR == 3,1,0)
+RUTU$DC7 <- ifelse(RUTU$FEDR == 4,1,0)
+RUTU$DC8 <- ifelse(RUTU$FEDR == 5,1,0)
+
+SESA$DC1 <- ifelse(SESA$FEDR == 6,1,0)
+SESA$DC2 <- ifelse(SESA$FEDR == 7,1,0)
+SESA$DC3 <- ifelse(SESA$FEDR == 0,1,0)
+SESA$DC4 <- ifelse(SESA$FEDR == 1,1,0)
+SESA$DC5 <- ifelse(SESA$FEDR == 2,1,0)
+SESA$DC6 <- ifelse(SESA$FEDR == 3,1,0)
+SESA$DC7 <- ifelse(SESA$FEDR == 4,1,0)
+SESA$DC8 <- ifelse(SESA$FEDR == 5,1,0)
+
+SAND$DC1 <- ifelse(SAND$FEDR == 6,1,0)
+SAND$DC2 <- ifelse(SAND$FEDR == 7,1,0)
+SAND$DC3 <- ifelse(SAND$FEDR == 0,1,0)
+SAND$DC4 <- ifelse(SAND$FEDR == 1,1,0)
+SAND$DC5 <- ifelse(SAND$FEDR == 2,1,0)
+SAND$DC6 <- ifelse(SAND$FEDR == 3,1,0)
+SAND$DC7 <- ifelse(SAND$FEDR == 4,1,0)
+SAND$DC8 <- ifelse(SAND$FEDR == 5,1,0)
+
+DUNL$DC1 <- ifelse(DUNL$FEDR == 6,1,0)
+DUNL$DC2 <- ifelse(DUNL$FEDR == 7,1,0)
+DUNL$DC3 <- ifelse(DUNL$FEDR == 0,1,0)
+DUNL$DC4 <- ifelse(DUNL$FEDR == 1,1,0)
+DUNL$DC5 <- ifelse(DUNL$FEDR == 2,1,0)
+DUNL$DC6 <- ifelse(DUNL$FEDR == 3,1,0)
+DUNL$DC7 <- ifelse(DUNL$FEDR == 4,1,0)
+DUNL$DC8 <- ifelse(DUNL$FEDR == 5,1,0)
+
+REKN$DC1 <- ifelse(REKN$FEDR == 6,1,0)
+REKN$DC2 <- ifelse(REKN$FEDR == 7,1,0)
+REKN$DC3 <- ifelse(REKN$FEDR == 0,1,0)
+REKN$DC4 <- ifelse(REKN$FEDR == 1,1,0)
+REKN$DC5 <- ifelse(REKN$FEDR == 2,1,0)
+REKN$DC6 <- ifelse(REKN$FEDR == 3,1,0)
+REKN$DC7 <- ifelse(REKN$FEDR == 4,1,0)
+REKN$DC8 <- ifelse(REKN$FEDR == 5,1,0)
 
 #subset the relevant covariates for each species
-REKN_set_covar <- REKN[,c(1:4,7:17,20:37)]
-RUTU_set_covar <- RUTU[,c(1:4,7:17,20:37)]
-SESA_set_covar <- SESA[,c(1:4,7:17,20:37)]
-SAND_set_covar <- SAND[,c(1:4,7:17,20:37)]
-DUNL_set_covar <- DUNL[,c(1:4,7:17,20:37)]
+REKN_set_covar <- REKN[,c(1:4,6:17,20:37)]
+RUTU_set_covar <- RUTU[,c(1:4,6:17,20:37)]
+SESA_set_covar <- SESA[,c(1:4,6:17,20:37)]
+SAND_set_covar <- SAND[,c(1:4,6:17,20:37)]
+DUNL_set_covar <- DUNL[,c(1:4,6:17,20:37)]
   
 #the rescaling leaves the binary variables, including dummies,
 #as 0/1 and divides the continuous variables by 2sd, exclude random effect variables
-REKN_covarSTD <- apply(REKN_set_covar[,c(1:13,17:33)],2,rescale, binary.inputs = "0/1")
-RUTU_covarSTD <- apply(RUTU_set_covar[,c(1:13,17:33)],2,rescale, binary.inputs = "0/1")
-SESA_covarSTD <- apply(SESA_set_covar[,c(1:13,17:33)],2,rescale, binary.inputs = "0/1")
-SAND_covarSTD <- apply(SAND_set_covar[,c(1:13,17:33)],2,rescale, binary.inputs = "0/1")
-DUNL_covarSTD <- apply(DUNL_set_covar[,c(1:13,17:33)],2,rescale, binary.inputs = "0/1")
+REKN_covarSTD <- apply(REKN_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
+RUTU_covarSTD <- apply(RUTU_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
+SESA_covarSTD <- apply(SESA_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
+SAND_covarSTD <- apply(SAND_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
+DUNL_covarSTD <- apply(DUNL_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
 
-REKN_covarSTD <- cbind(REKN_set_covar[,14:16],REKN_covarSTD)
+REKN_covarSTD <- cbind(REKN_set_covar[,15:17],REKN_covarSTD)
 colnames(REKN_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
-RUTU_covarSTD <- cbind(RUTU_set_covar[,14:16],RUTU_covarSTD)
+RUTU_covarSTD <- cbind(RUTU_set_covar[,15:17],RUTU_covarSTD)
 colnames(RUTU_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
-SESA_covarSTD <- cbind(SESA_set_covar[,14:16],SESA_covarSTD)
+SESA_covarSTD <- cbind(SESA_set_covar[,15:17],SESA_covarSTD)
 colnames(SESA_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
-SAND_covarSTD <- cbind(SAND_set_covar[,14:16],SAND_covarSTD)
+SAND_covarSTD <- cbind(SAND_set_covar[,15:17],SAND_covarSTD)
 colnames(SAND_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
-DUNL_covarSTD <- cbind(DUNL_set_covar[,14:16],DUNL_covarSTD)
+DUNL_covarSTD <- cbind(DUNL_set_covar[,15:17],DUNL_covarSTD)
 colnames(DUNL_covarSTD)[1:3] <- c("year","Nsegment","NWD")
 
 #the rescaling process resulted in certain variables being converted to NaN
