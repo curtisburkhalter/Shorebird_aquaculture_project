@@ -1,6 +1,6 @@
 # Shorebird_aquaculture_project;Project assessing the impacts of oyster aquaculture on Red Knots in New Jersey
 
-Up and down the east coast of the US there are growing markets to produce artisanal markets of shellfish via aquaculture. In New Jersey 
+Up and down the east coast of the US there are growing markets to produce artisanal varieties of shellfish via aquaculture. In New Jersey 
 such markets exist along many Delaware Bay beaches. These same beaches serve as important stopover sites for many shorebird species, 
 including the endangered Red Knot. 
 
