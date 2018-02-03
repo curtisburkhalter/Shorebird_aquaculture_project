@@ -36,14 +36,14 @@
            #n observations
            
            w[i] ~ dbern(omega)
-           NREKN[i] ~ dpois(eff.lambda[i]) 
+           REKN[i] ~ dpois(eff.lambda[i]) 
            eff.lambda[i] <- w[i]*lambda[i]
            
            log(lambda[i]) <- alpha.lam + Beta_FEDR[FEDR[i]] +eps[i]
            
            # Fit assessments
            
-           residual[i] <- NREKN[i] - eff.lambda[i]
+           residual[i] <- REKN[i] - eff.lambda[i]
            predicted[i] <- eff.lambda[i]
            sq[i] <- pow(residual[i],2)
            
