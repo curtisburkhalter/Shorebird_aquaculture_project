@@ -1,0 +1,10 @@
+
+Processing function input....... 
+
+Done. 
+ 
+Beginning parallel processing using 2 cores. Console output will be suppressed.
+
+Parallel processing completed.
+
+Calculating statistics....... 
