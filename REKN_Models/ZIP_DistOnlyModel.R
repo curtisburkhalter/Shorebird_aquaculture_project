@@ -187,6 +187,8 @@ out <- jags(data = data,
      n.cores=2)
 
 sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputDistOnlyModel.txt"))
+out
+sink()
 
 end <- Sys.time()
 
