@@ -2,6 +2,7 @@
 suppressMessages(library(rjags))
 suppressMessages(library(jagsUI))
 suppressMessages(library(here))
+suppressMessages(library(tidyverse))
 
 #read in data and initial value files; using "../" moves you up one directory
 seg_rand <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","seg_rand_inits.txt"),header=TRUE)
@@ -12,16 +13,16 @@ names(WD_rand)<-NULL
 
 NREKN.new <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","NREKN.new_inits.txt"),header=TRUE)
 names(NREKN.new) <- NULL
-NREKN.new <- as.numeric(NREKN.new[,1])
+NREKN.new <- as.integer(NREKN.new[,1])
 NREKN.new <- NREKN.new[1:6935]
 
 w <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","w_inits.txt"),header=TRUE)
 names(w) <- NULL
-w <- as.numeric(w[,1])
+w <- as.integer(w[,1])
 
 eps <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","eps_inits.txt"),header=TRUE)
 names(eps) <- NULL
-eps <- as.numeric(eps[,1])
+eps <- as.integer(eps[,1])
 
 comdata <- read.delim(file=here("Shorebird_aquaculture_project","DataForModelFitting","REKN_fitting012818.txt"),header=T)
 #put the column names for the count and covariate data into a vector
@@ -43,7 +44,7 @@ comdata$FEDR <- ifelse(comdata$FEDR == "150to200", "4", comdata$FEDR)
 comdata$FEDR <- ifelse(comdata$FEDR == "250to300", "5", comdata$FEDR)
 comdata$FEDR <- ifelse(comdata$FEDR == "NoDist", "6", comdata$FEDR)
 comdata$FEDR <- ifelse(comdata$FEDR == "300+","7", comdata$FEDR)
-comdata$FEDR <- as.numeric(comdata$FEDR)
+comdata$FEDR <- as.integer(comdata$FEDR)
 
 #number of observations
 N <- as.numeric(nrow(comdata))
@@ -56,7 +57,7 @@ WD <- nrow(WD_rand) - 1
 
 
 #initial values for parameters
-Beta_FEDR=c(NA,1,1,1,1,1,1)
+Beta_FEDR=as.integer(c(NA,1,1,1,1,1,1))
 
 alpha.lam=1
 omega=1
@@ -68,7 +69,7 @@ tau.disp=3
 
 #JAGS only accepts initial values put into a list or a function
 initsFunction = function() {list(Beta_FEDR=Beta_FEDR,
-                                 alpha.lam=alpha.lam,omega=omega,tau.disp=tau.disp,eps=eps)}
+                                 alpha.lam=alpha.lam,omega=omega,tau.disp=tau.disp,eps=eps,w=w)}
 
 #package the data to be used in JAGS by providing the dataset names
 data <- list('N','REKN','year','FEDR','Nsegment','NWD','time','AT','windS','TS','nGulls',
@@ -133,14 +134,14 @@ writeLines("
            #n observations
            
            w[i] ~ dbern(omega)
-           NREKN[i] ~ dpois(eff.lambda[i]) 
+           REKN[i] ~ dpois(eff.lambda[i]) 
            eff.lambda[i] <- w[i]*lambda[i]
            
            log(lambda[i]) <- alpha.lam + Beta_FEDR[FEDR[i]] +eps[i]
            
            # Fit assessments
            
-           residual[i] <- NREKN[i] - eff.lambda[i]
+           residual[i] <- REKN[i] - eff.lambda[i]
            predicted[i] <- eff.lambda[i]
            sq[i] <- pow(residual[i],2)
            
@@ -170,8 +171,6 @@ writeLines("
 #Identify filepath of model file;
 modfile <- here("Shorebird_aquaculture_project","REKN_Models", "ZIP_DistOnlyModel.txt")
 
-sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputDistOnlyModel.txt"))
-
 #create JAGS model object 'out' using the jags function of package jagsUI             
 out <- jags(data = data,
      parameters.to.save = params,
@@ -180,14 +179,14 @@ out <- jags(data = data,
      modules=c('glm','dic'),
      n.chains = 2,
      n.adapt = 100,
-     n.iter = 30000,
-     n.burnin = 10000,
+     n.iter = 70000,
+     n.burnin = 20000,
      n.thin = 2,
      parallel=TRUE,
      seed=as.integer(Sys.time()),
      n.cores=2)
 
-sink()
+sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputDistOnlyModel.txt"))
 
 end <- Sys.time()
 
@@ -204,7 +203,7 @@ names(out)
 #Plot traces and posterior densities
 plot(out)
 
-#update more if necessary
-#out <- update(out,n.iter = 10000)
 
+#update more if necessary
+#out <- update(out,n.iter = 30000)
 
