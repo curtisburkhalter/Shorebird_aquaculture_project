@@ -299,26 +299,26 @@ DUNL_set_covar <- DUNL[,c(1:4,6:17,20:37)]
   
 #the rescaling leaves the binary variables, including dummies,
 #as 0/1 and divides the continuous variables by 2sd, exclude random effect variables
-REKN_covarSTD <- apply(REKN_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
-RUTU_covarSTD <- apply(RUTU_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
-SESA_covarSTD <- apply(SESA_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
-SAND_covarSTD <- apply(SAND_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
-DUNL_covarSTD <- apply(DUNL_set_covar[,c(1:14,17:34)],2,rescale, binary.inputs = "0/1")
+REKN_covarSTD <- apply(REKN_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
+RUTU_covarSTD <- apply(RUTU_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
+SESA_covarSTD <- apply(SESA_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
+SAND_covarSTD <- apply(SAND_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
+DUNL_covarSTD <- apply(DUNL_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
 
-REKN_covarSTD <- cbind(REKN_set_covar[,15:17],REKN_covarSTD)
-colnames(REKN_covarSTD)[1:3] <- c("year","Nsegment","NWD")
+REKN_covarSTD <- cbind(REKN_set_covar[,c(5,15:17)],REKN_covarSTD)
+colnames(REKN_covarSTD)[1:4] <- c("FEDR", "year","Nsegment","NWD")
 
-RUTU_covarSTD <- cbind(RUTU_set_covar[,15:17],RUTU_covarSTD)
-colnames(RUTU_covarSTD)[1:3] <- c("year","Nsegment","NWD")
+RUTU_covarSTD <- cbind(RUTU_set_covar[,c(6,15:17)],RUTU_covarSTD)
+colnames(RUTU_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
 
-SESA_covarSTD <- cbind(SESA_set_covar[,15:17],SESA_covarSTD)
-colnames(SESA_covarSTD)[1:3] <- c("year","Nsegment","NWD")
+SESA_covarSTD <- cbind(SESA_set_covar[,c(6,15:17)],SESA_covarSTD)
+colnames(SESA_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
 
-SAND_covarSTD <- cbind(SAND_set_covar[,15:17],SAND_covarSTD)
-colnames(SAND_covarSTD)[1:3] <- c("year","Nsegment","NWD")
+SAND_covarSTD <- cbind(SAND_set_covar[,c(6,15:17)],SAND_covarSTD)
+colnames(SAND_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
 
-DUNL_covarSTD <- cbind(DUNL_set_covar[,15:17],DUNL_covarSTD)
-colnames(DUNL_covarSTD)[1:3] <- c("year","Nsegment","NWD")
+DUNL_covarSTD <- cbind(DUNL_set_covar[,c(6,15:17)],DUNL_covarSTD)
+colnames(DUNL_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
 
 #the rescaling process resulted in certain variables being converted to NaN
 #b/c they only had 0's as the value; need to fix these for each of the 
