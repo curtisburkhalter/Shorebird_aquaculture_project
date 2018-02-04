@@ -15,6 +15,16 @@
                 }
            }
            
+           alpha.lam~dnorm(0,0.1)
+           
+           Beta_FEDR[1] <- 0
+           Beta_FEDR[2]~dnorm(0,0.1)
+           Beta_FEDR[3]~dnorm(0,0.1)
+           Beta_FEDR[4]~dnorm(0,0.1)
+           Beta_FEDR[5]~dnorm(0,0.1)
+           Beta_FEDR[6]~dnorm(0,0.1)
+           Beta_FEDR[7]~dnorm(0,0.1)
+
            # i obs random effect
            for (i in 1:N) {
            eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
@@ -35,7 +45,7 @@
            REKN[i] ~ dpois(eff.lambda[i]) 
            eff.lambda[i] <- w[i]*lambda[i]
            
-           log(lambda[i]) <- group.mean[FEDR[i],tending[i]] + eps[i]
+           log(lambda[i]) <- alpha.lam + Beta_FEDR[FEDR[i]] + group.mean[FEDR[i],tending[i]] + eps[i]
            
            # Fit assessments
            
