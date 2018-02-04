@@ -137,7 +137,7 @@ as.numeric.factor <- function(x) {seq_along(levels(x))[x]}
 OnlyTending$Nsegment <- as.numeric.factor(OnlyTending$segment)
 
 ##convert shore_hab into a numeric id
-#Bulkhead=2;Dune=4,Phragmites=6;Marsh=5;Creek=3;Woodland=7
+#Bulkhead=1;Dune=3,Phragmites=5;Marsh=4;Creek=2;Woodland=6
 OnlyTending$NSH <- as.numeric.factor(OnlyTending$shore_hab)
 
 #remove all white space from tide column and convert to numeric
@@ -162,17 +162,17 @@ fit_set <- OnlyTending
 #to ease their coding in WinBUGS; This requires
 #code each level of the categorical variable as 0/1;
 #for this dataset it is NSH, Ntide
-#Bulkhead=2;Dune=4,Phragmites=6;Marsh=5;Creek=3;Woodland=7
+#Bulkhead=1;Dune=3,Phragmites=5;Marsh=4;Creek=2;Woodland=6
 #Falling=1;Low=2,Rising=3;
 #in doing the coding this way the regression coefficients
 #represent the mean value for each of the respective shoreline types
 #and the model intercept represents the common slope across all habitat types
-fit_set$Bulk <- ifelse(fit_set$NSH == 2,1,0)
-fit_set$Dune <- ifelse(fit_set$NSH == 4,1,0)
-fit_set$Phrag <- ifelse(fit_set$NSH == 6,1,0)
-fit_set$Marsh <- ifelse(fit_set$NSH == 5,1,0)
-fit_set$Creek <- ifelse(fit_set$NSH == 3,1,0)
-fit_set$Woodland <- ifelse(fit_set$NSH == 7,1,0)
+fit_set$Bulk <- ifelse(fit_set$NSH == 1,1,0)
+fit_set$Dune <- ifelse(fit_set$NSH == 3,1,0)
+fit_set$Phrag <- ifelse(fit_set$NSH == 5,1,0)
+fit_set$Marsh <- ifelse(fit_set$NSH == 4,1,0)
+fit_set$Creek <- ifelse(fit_set$NSH == 2,1,0)
+fit_set$Woodland <- ifelse(fit_set$NSH == 6,1,0)
 
 fit_set$FT <- ifelse(fit_set$Ntide == 1, 1,0)
 fit_set$LT <- ifelse(fit_set$Ntide == 2, 1,0)
