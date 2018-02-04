@@ -1,0 +1,73 @@
+
+           
+           model {											#Open overall model bracket
+           
+           ############################################################
+           #Priors
+           ############################################################
+           
+           omega ~ dunif(0,1)
+           
+           alpha.lam~dnorm(0,0.1)
+           
+           Beta_FEDR[1] <- 0
+           Beta_FEDR[2]~dnorm(0,0.1)
+           Beta_FEDR[3]~dnorm(0,0.1)
+           Beta_FEDR[4]~dnorm(0,0.1)
+           Beta_FEDR[5]~dnorm(0,0.1)
+           Beta_FEDR[6]~dnorm(0,0.1)
+           Beta_FEDR[7]~dnorm(0,0.1)
+           
+           Beta_tending[1] <- 0
+           Beta_tending[2]~dnorm(0,0.1)
+           
+           # i obs random effect
+           for (i in 1:N) {
+           eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
+           }
+           
+           #hyperprior on random observation effects precision
+           tau.disp ~ dgamma(0.1,0.001)
+           
+           
+           ############################################################
+           #Likelihood specification
+           ############################################################
+           
+           for (i in 1:N){											# Open i likelihood bracket; corresponds to obs
+           #n observations
+           
+           w[i] ~ dbern(omega)
+           REKN[i] ~ dpois(eff.lambda[i]) 
+           eff.lambda[i] <- w[i]*lambda[i]
+           
+           log(lambda[i]) <- alpha.lam + Beta_FEDR[FEDR[i]] + Beta_tending[tending[i]] + eps[i]
+           
+           # Fit assessments
+           
+           residual[i] <- REKN[i] - eff.lambda[i]
+           predicted[i] <- eff.lambda[i]
+           sq[i] <- pow(residual[i],2)
+           
+           
+           # Generate replicate datasets
+           NREKN.new[i] ~ dpois(eff.lambda[i])
+           sq.new[i] <- pow(NREKN.new[i]-predicted[i],2)
+           
+           
+           } # close i likelihood bracket
+           
+           ############################################################
+           #Derived quantities
+           ############################################################
+           # Add up discrepancy measures
+           fit <- sum(sq[])
+           fit.new <- sum(sq.new[])
+           test <- step(fit.new-fit)
+           bpvalue <- mean(test)
+           } #close model
+           
+           
+           
+           
+           
