@@ -195,6 +195,7 @@ out <- jags(data = data,
             n.cores=2)
 
 sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputShorelineModel.txt"))
+out <- update(out,n.iter = 50000)
 out
 sink()
 
