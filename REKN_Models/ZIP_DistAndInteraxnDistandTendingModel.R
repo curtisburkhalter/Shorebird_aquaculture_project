@@ -146,7 +146,7 @@ writeLines("
            REKN[i] ~ dpois(eff.lambda[i]) 
            eff.lambda[i] <- w[i]*lambda[i]
            
-           log(lambda[i]) <- alpha.lam[i] + beta_FEDR[FEDR[i]] + group.mean[FEDR[i],tending[i]] + eps[i]
+           log(lambda[i]) <- alpha.lam + Beta_FEDR[FEDR[i]] + group.mean[FEDR[i],tending[i]] + eps[i]
            
            # Fit assessments
            
@@ -195,9 +195,8 @@ out <- jags(data = data,
             seed=as.integer(Sys.time()),
             n.cores=2)
 
-sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputInteraxnDistandTendingModel.txt"))
-#out <- update(out,n.iter = 30000)
-
+sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputDIstandInteraxnDistandTendingModel.txt"))
+out <- update(out,n.iter = 50000)
 out
 sink()
 
