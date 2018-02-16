@@ -251,10 +251,88 @@ colnames(REKN)[5] <- "totREKN"
 rngREKN <- range(REKN$totREKN)
 rngRKEN
 
-#create plot of counts by time of day
-ggplot(REKN, aes(x = time, y = totREKN)) +
+#create plot of counts by time of day over the course of
+#the sampling period
+ggplot(REKN, aes(x = time, y = totREKN,color=day)) +
   geom_point() +
+  geom_smooth()+
   scale_y_continuous(limits = c(0,rngREKN[2])) +
   ylab("Total number of REKN counted") +
   xlab("Time of day")+
+  scale_color_gradient(low = "black", high = "red")+
+  facet_wrap(~year)
+
+#create plot of counts by wind speed
+ggplot(REKN, aes(x = windS, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Wind Speed (km/h)")+
+  facet_wrap(~year)
+
+#create plot of counts by total shorebirds
+ggplot(REKN, aes(x = TS, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Total number of shorebirds present")+
+  facet_wrap(~year)
+
+#create plot of counts by air temp
+ggplot(REKN, aes(x = AT, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Air temperature (C)")+
+  facet_wrap(~year)
+
+#create plot of counts by # of gulls present
+ggplot(REKN, aes(x = nGulls, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Number of gulls present")+
+  facet_wrap(~year)
+
+
+#create plot of counts by # of oystermen present
+ggplot(REKN, aes(x = nOM, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Number of oystermen present")+
+  facet_wrap(~year)
+
+#create plot of counts by # of non-oystermen present
+ggplot(REKN, aes(x = nOtherP, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Number of non-oystermen present")+
+  facet_wrap(~year)
+
+#create plot of counts by # of activities present
+ggplot(REKN, aes(x = activities, y = totREKN)) +
+  geom_point(color = "blue") +
+  geom_smooth(color = "black")+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Number of activities present")+
+  facet_wrap(~year)
+
+#create plot of counts by day of sampling period color using
+#time of day
+ggplot(REKN, aes(x = day, y = totREKN,color=time)) +
+  geom_point() +
+  geom_smooth()+
+  scale_y_continuous(limits = c(0,rngREKN[2])) +
+  ylab("Total number of REKN counted") +
+  xlab("Julian day")+
+  scale_color_gradient(low = "black", high = "red")+
   facet_wrap(~year)
