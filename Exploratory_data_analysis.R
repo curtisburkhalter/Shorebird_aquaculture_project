@@ -10,6 +10,7 @@ suppressMessages(library('arm')) #package written by A. Gelman that will automat
 #standardize all data by dividing by 2sd
 suppressMessages(library('tidyverse'))
 suppressMessages(library('lme4'))
+suppressMessages(library('RColorBrewer'))
 
 #set working directory
 setwd("~/GitHub/Shorebird_aquaculture_project")
@@ -335,4 +336,32 @@ ggplot(REKN, aes(x = day, y = totREKN,color=time)) +
   ylab("Total number of REKN counted") +
   xlab("Julian day")+
   scale_color_gradient(low = "black", high = "red")+
+  facet_wrap(~year)
+
+#create some boxplots to show differences for the categorical variables
+ggplot(REKN, aes(x = as.factor(tending), y = log(totREKN), color = as.factor(tending))) +
+  geom_boxplot() +
+  ylab("log(Total number of REKN)") +
+  xlab("") +
+  theme(axis.text.x = element_blank(), axis.ticks = element_blank()) +
+  scale_color_manual(labels = c("No","Yes"),values=c("Red","Blue")) +
+  guides(color=guide_legend("Tending Status"))+
+  facet_wrap(~year)
+
+ggplot(REKN, aes(x = as.factor(NSH), y = log(totREKN), color = as.factor(NSH))) +
+  geom_boxplot() +
+  ylab("log(Total number of REKN)") +
+  xlab("") +
+  theme(axis.text.x = element_blank(), axis.ticks = element_blank()) +
+  scale_color_manual(labels=c("Bulkhead", "Creek", "Dune", "Marsh", "Phragmites", "Woodland"), values = c("Red","Blue","Green","Black","Orange","Purple")) +
+  guides(color=guide_legend("Shoreline Habitat"))+
+  facet_wrap(~year)
+
+ggplot(REKN, aes(x = as.factor(Ntide), y = log(totREKN), color = as.factor(Ntide))) +
+  geom_boxplot() +
+  ylab("log(Total number of REKN)") +
+  xlab("")+
+  theme(axis.text.x = element_blank(), axis.ticks = element_blank()) +
+  scale_color_manual(labels=c("Falling", "Low", "Rising"), values = c("Red","Blue","Green")) +
+  guides(color=guide_legend("Tidal stage"))+
   facet_wrap(~year)
