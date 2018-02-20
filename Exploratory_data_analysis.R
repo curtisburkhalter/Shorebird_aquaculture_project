@@ -11,6 +11,7 @@ suppressMessages(library('arm')) #package written by A. Gelman that will automat
 suppressMessages(library('tidyverse'))
 suppressMessages(library('lme4'))
 suppressMessages(library('RColorBrewer'))
+suppressMessages(library('here'))
 
 #set working directory
 setwd("~/GitHub/Shorebird_aquaculture_project")
@@ -250,7 +251,7 @@ colnames(REKN)[5] <- "totREKN"
 
 #look at range of counts
 rngREKN <- range(REKN$totREKN)
-rngRKEN
+rngREKN
 
 #create plot of counts by time of day over the course of
 #the sampling period
@@ -263,6 +264,8 @@ ggplot(REKN, aes(x = time, y = totREKN,color=day)) +
   scale_color_gradient(low = "black", high = "red")+
   facet_wrap(~year)
 
+ggsave("REKNvsTimeofDay.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 #create plot of counts by wind speed
 ggplot(REKN, aes(x = windS, y = totREKN)) +
   geom_point(color = "blue") +
@@ -271,6 +274,8 @@ ggplot(REKN, aes(x = windS, y = totREKN)) +
   ylab("Total number of REKN counted") +
   xlab("Wind Speed (km/h)")+
   facet_wrap(~year)
+
+ggsave("REKNvsWindSpeed.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
 
 #create plot of counts by total shorebirds
 ggplot(REKN, aes(x = TS, y = totREKN)) +
@@ -281,6 +286,8 @@ ggplot(REKN, aes(x = TS, y = totREKN)) +
   xlab("Total number of shorebirds present")+
   facet_wrap(~year)
 
+ggsave("REKNvsTotShorebirds.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 #create plot of counts by air temp
 ggplot(REKN, aes(x = AT, y = totREKN)) +
   geom_point(color = "blue") +
@@ -289,6 +296,8 @@ ggplot(REKN, aes(x = AT, y = totREKN)) +
   ylab("Total number of REKN counted") +
   xlab("Air temperature (C)")+
   facet_wrap(~year)
+
+ggsave("REKNvsAirTemperature.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
 
 #create plot of counts by # of gulls present
 ggplot(REKN, aes(x = nGulls, y = totREKN)) +
@@ -299,6 +308,7 @@ ggplot(REKN, aes(x = nGulls, y = totREKN)) +
   xlab("Number of gulls present")+
   facet_wrap(~year)
 
+ggsave("REKNvsNumberofGulls.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
 
 #create plot of counts by # of oystermen present
 ggplot(REKN, aes(x = nOM, y = totREKN)) +
@@ -309,6 +319,8 @@ ggplot(REKN, aes(x = nOM, y = totREKN)) +
   xlab("Number of oystermen present")+
   facet_wrap(~year)
 
+ggsave("REKNvsNumberofOystermen.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 #create plot of counts by # of non-oystermen present
 ggplot(REKN, aes(x = nOtherP, y = totREKN)) +
   geom_point(color = "blue") +
@@ -318,6 +330,8 @@ ggplot(REKN, aes(x = nOtherP, y = totREKN)) +
   xlab("Number of non-oystermen present")+
   facet_wrap(~year)
 
+ggsave("REKNvsNumberofNonOystermen.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 #create plot of counts by # of activities present
 ggplot(REKN, aes(x = activities, y = totREKN)) +
   geom_point(color = "blue") +
@@ -326,6 +340,8 @@ ggplot(REKN, aes(x = activities, y = totREKN)) +
   ylab("Total number of REKN counted") +
   xlab("Number of activities present")+
   facet_wrap(~year)
+
+ggsave("REKNvsActivities.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
 
 #create plot of counts by day of sampling period color using
 #time of day
@@ -338,6 +354,8 @@ ggplot(REKN, aes(x = day, y = totREKN,color=time)) +
   scale_color_gradient(low = "black", high = "red")+
   facet_wrap(~year)
 
+ggsave("REKNvsJulianCalendarDay.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 #create some boxplots to show differences for the categorical variables
 ggplot(REKN, aes(x = as.factor(tending), y = log(totREKN), color = as.factor(tending))) +
   geom_boxplot() +
@@ -348,6 +366,8 @@ ggplot(REKN, aes(x = as.factor(tending), y = log(totREKN), color = as.factor(ten
   guides(color=guide_legend("Tending Status"))+
   facet_wrap(~year)
 
+ggsave("REKNandTendingvsNoTending.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 ggplot(REKN, aes(x = as.factor(NSH), y = log(totREKN), color = as.factor(NSH))) +
   geom_boxplot() +
   ylab("log(Total number of REKN)") +
@@ -357,6 +377,8 @@ ggplot(REKN, aes(x = as.factor(NSH), y = log(totREKN), color = as.factor(NSH))) 
   guides(color=guide_legend("Shoreline Habitat"))+
   facet_wrap(~year)
 
+ggsave("REKNandShorelineHabitat.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
 ggplot(REKN, aes(x = as.factor(Ntide), y = log(totREKN), color = as.factor(Ntide))) +
   geom_boxplot() +
   ylab("log(Total number of REKN)") +
@@ -365,3 +387,17 @@ ggplot(REKN, aes(x = as.factor(Ntide), y = log(totREKN), color = as.factor(Ntide
   scale_color_manual(labels=c("Falling", "Low", "Rising"), values = c("Red","Blue","Green")) +
   guides(color=guide_legend("Tidal stage"))+
   facet_wrap(~year)
+
+ggsave("REKNandTidalStage.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
+ggplot(REKN, aes(x = as.factor(FEDR), y = log(totREKN), color = as.factor(FEDR))) +
+  geom_boxplot() +
+  ylab("log(Total number of REKN)") +
+  xlab("")+
+  theme(axis.text.x = element_blank(), axis.ticks = element_blank()) +
+  scale_color_manual(labels=c("0-50m", "50-100m", "100-150m","150-200m","250-300m","Racks>300m+","300m+"), values = c("Red","Blue","Green","Black","Orange","Purple","Yellow")) +
+  guides(color=guide_legend("Flock Edge Distance to Racks"))+
+  facet_wrap(~year)
+
+ggsave("REKNandDistancetoTending.png",device = "png", path = here("OutputFiles","REKN","EDA_Figures"), dpi = 400)
+
