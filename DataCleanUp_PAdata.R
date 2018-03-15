@@ -21,9 +21,7 @@ View(RawCensus)
 #need to remove columns 47, 48
 RawCensus <- RawCensus[,1:46]
 
-
 #change column names to format that I like
-
 names(RawCensus) <- gsub("shoreline.*","shore_hab",names(RawCensus))
 names(RawCensus) <- gsub("date.*","date",names(RawCensus))
 names(RawCensus) <- gsub("time.*","time",names(RawCensus))
@@ -50,67 +48,38 @@ RawCensus <- RawCensus[complete.cases(RawCensus$TS),]
 #there are records where SESA are and NA and where RUTU/REKN are negative
 #need to remove those records later after the data file
 #has been split up into species specific dataframes;
-#for now just change the negative RUTU count records to NA
+#for now just change the negative RUTU/REKN count records to NA
 #remove records that contain only a blank space or other character entries
-RawCensus$total_reknIS <- RawCensus$total_reknIS[RawCensus$total_reknIS < 0] <- NA
+RawCensus$total_reknIS[RawCensus$total_reknIS < 0] <- NA
+RawCensus$total_rutuIS[RawCensus$total_rutuIS < 0] <- NA
 
-#need to convert all of the bird counts to numeric values
-RawCensus$TS <- as.numeric(RawCensus$TS)
-RawCensus$`REKN TIS` <- as.numeric(RawCensus$`REKN TIS`)
-RawCensus$`SESA TIS` <- as.numeric(RawCensus$`SESA TIS`)
-RawCensus$`RUTU TIS` <- as.numeric(RawCensus$`RUTU TIS`)
-RawCensus$`SAND TIS` <- as.numeric(RawCensus$`SAND TIS`)
-RawCensus$`DUNL TIS` <- as.numeric(RawCensus$`DUNL TIS`)
+#in the plane column there are 2 entries that are NA, just remove them
+RawCensus <- RawCensus[complete.cases(RawCensus$plane),]
 
-#for some reason some of the REKN,DUNL and RUTU counts include negative numbers
-RawCensus <- RawCensus[!(RawCensus$`REKN TIS` < 0|RawCensus$`RUTU TIS` < 0|RawCensus$`DUNL TIS` < 0), ]
-
-#in one entry of 'raptor' column the species was identified
-#this drops the species id
-RawCensus$raptor <- gsub("\\ BAEA","",RawCensus$raptor)
-
-#in the plane column there are entries with letters
-#remove all letters
-RawCensus$plane <- gsub("1.*","1",RawCensus$plane)
+#remove column 1
+RawCensus <- RawCensus[,-1]
 
 #convert certain character vectors to factors
 RawCensus$segment <- as.factor(RawCensus$segment)
 RawCensus$shore_hab <- as.factor(RawCensus$shore_hab)
+RawCensus$habitat <- as.factor(RawCensus$habitat)
 RawCensus$tide <- as.factor(RawCensus$tide)
-RawCensus$date <- as.factor(RawCensus$date)
-RawCensus$windD <- as.factor(RawCensus$windD)
 
-#change time so that only numeric
-RawCensus$time <- sub(":","",RawCensus$time)
+#drop column 'observationoccuredduring4hrtendingwindow_1_0'
+RawCensus <- RawCensus[, -grep("observationoccured.*", colnames(RawCensus))]
 
-#drop all flock center location columns
-RawCensus <- RawCensus[, -grep("FCL.*", colnames(RawCensus))]
-RawCensus <- RawCensus[, -grep("FCDR.*", colnames(RawCensus))]
-RawCensus <- RawCensus[, -grep("FCDT.*", colnames(RawCensus))]
+#records have already been subsetted to include only those in 
+#tending window, so now I'm going to subset only the
+#columns I need for the occupancy modeling and put it in Only Tending
+OnlyTending<- RawCensus[,grep("segment.*|habitat.*|shore.*|dist.*|date.*|year.*|time.*|TS.*|.*_occupancy|nGulls.*|tending.*|plane.*|tide.*", colnames(RawCensus))]
 
-#subset records to only include those during the tending window
-#tending window times correspond to "TW" = 1
-OnlyTending<- RawCensus[!(RawCensus$TW==0|is.na(RawCensus$TW)),]
-
-#remove tending window column now that data is subset
-OnlyTending$TW <- NULL
-
-#create new date format for date and remove old one
-OnlyTending$date <- as.POSIXct(OnlyTending$date, format = "%m/%d/%Y")
+View(OnlyTending)
 
 #convert the date to a numeric day from 1-365
 OnlyTending$day <- strptime(OnlyTending$date, format = "%Y-%m-%d",tz = "")$yday+1
 
-#create year column
-OnlyTending$year <- substr(OnlyTending$date, 1,4)
-
-OnlyTending$date <- NULL
-
 #write function that converts data structures from factors to a numeric sequence
 as.numeric.factor <- function(x) {seq_along(levels(x))[x]}
-
-#convert segment ids to simple integer value ids
-OnlyTending$Nsegment <- as.numeric.factor(OnlyTending$segment)
 
 ##convert shore_hab into a numeric id
 #Bulkhead=1;Dune=3,Phragmites=5;Marsh=4;Creek=2;Woodland=6
@@ -121,16 +90,8 @@ OnlyTending$NSH <- as.numeric.factor(OnlyTending$shore_hab)
 OnlyTending$tide <- as.factor(gsub("\\s", "", OnlyTending$tide)) 
 OnlyTending$Ntide <- as.numeric.factor(OnlyTending$tide)
 
-#drop unused levels from factors
-OnlyTending$windD<-droplevels(OnlyTending$windD)
-
-##convert wind direction into a numeric id
-OnlyTending$NWD <- as.numeric.factor(OnlyTending$windD)
-
 #drop non-numeric categorical variable columns
-OnlyTending$segment <- OnlyTending$shore_hab <- OnlyTending$tide <- OnlyTending$date <- OnlyTending$windD <- OnlyTending$SegmentInt <- NULL
-OnlyTending$`Julian Day` <- NULL
-OnlyTending$`Census #` <- NULL
+OnlyTending$shore_hab <- OnlyTending$tide  <- NULL
 
 fit_set <- OnlyTending
 
@@ -154,7 +115,6 @@ fit_set$FT <- ifelse(fit_set$Ntide == 1, 1,0)
 fit_set$LT <- ifelse(fit_set$Ntide == 2, 1,0)
 fit_set$RT <- ifelse(fit_set$Ntide == 3, 1,0)
 
-
 #need to standardize the data before using it in modeling
 #but before make sure all the covariate data is numeric
 #and not character; see Gelman 2008 for reasoning
@@ -163,30 +123,12 @@ fit_set$RT <- ifelse(fit_set$Ntide == 3, 1,0)
 
 str(fit_set)
 
-fit_set$time <- as.numeric(fit_set$time)
-fit_set$TS <- as.integer(fit_set$TS)
-fit_set$nOM <- as.integer(fit_set$nOM)
-fit_set$raptor <- as.integer(fit_set$raptor)
-fit_set$plane <- as.integer(fit_set$plane)
-fit_set$activities <- as.integer(fit_set$activities)
-fit_set$nGulls <- as.integer(fit_set$nGulls)
-fit_set$year <- as.integer(fit_set$year)
-fit_set$nOtherP <- as.integer(fit_set$nOtherP)
-fit_set$dog <- as.integer(fit_set$dog)
-fit_set$tending <- as.integer(fit_set$tending)
-fit_set$windS <- as.numeric(fit_set$windS)
-fit_set$AT <- as.numeric(fit_set$AT)
-
-#drop all FEL and FEDT columns from fit_set
-fit_set <- fit_set[, -grep("FEL.*", colnames(fit_set))]
-fit_set <- fit_set[, -grep("FEDT.*", colnames(fit_set))]
-
 #create species specific datasets from fit_set
-REKN <- fit_set[, -grep("RUTU.*|SESA.*|SAND.*|DUNL.*", colnames(fit_set))]
-RUTU <- fit_set[, -grep("REKN.*|SESA.*|SAND.*|DUNL.*", colnames(fit_set))]
-SESA <- fit_set[, -grep("RUTU.*|REKN.*|SAND.*|DUNL.*", colnames(fit_set))]
-SAND <- fit_set[, -grep("RUTU.*|SESA.*|REKN.*|DUNL.*", colnames(fit_set))]
-DUNL <- fit_set[, -grep("RUTU.*|SESA.*|SAND.*|REKN.*", colnames(fit_set))]
+REKN <- fit_set[, -grep("rutu.*|sesa.*|sand.*|dunl.*", colnames(fit_set))]
+RUTU <- fit_set[, -grep("rekn.*|sesa.*|sand.*|dunl.*", colnames(fit_set))]
+SESA <- fit_set[, -grep("rutu.*|rekn.*|sand.*|dunl.*", colnames(fit_set))]
+SAND <- fit_set[, -grep("rutu.*|sesa.*|rekn.*|dunl.*", colnames(fit_set))]
+DUNL <- fit_set[, -grep("rutu.*|sesa.*|sand.*|rekn.*", colnames(fit_set))]
 
 #use dummy variable coding for each species to create a series of distance
 #classes; "~" = DC1; "+" = DC2; "0" = DC3, "1" = DC4;
