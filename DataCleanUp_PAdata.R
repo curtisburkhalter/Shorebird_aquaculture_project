@@ -130,126 +130,23 @@ SESA <- fit_set[, -grep("rutu.*|rekn.*|sand.*|dunl.*", colnames(fit_set))]
 SAND <- fit_set[, -grep("rutu.*|sesa.*|rekn.*|dunl.*", colnames(fit_set))]
 DUNL <- fit_set[, -grep("rutu.*|sesa.*|sand.*|rekn.*", colnames(fit_set))]
 
-#use dummy variable coding for each species to create a series of distance
-#classes; "~" = DC1; "+" = DC2; "0" = DC3, "1" = DC4;
-#"2" = DC5; "3" = DC6; "4" = DC7, "5" = DC8;
-REKN$`REKN FEDR` <- ifelse(REKN$`REKN FEDR`=="O","0",REKN$`REKN FEDR`)
-
-colnames(REKN)[6] <- "FEDR"
-colnames(RUTU)[6] <- "FEDR"
-colnames(SESA)[6] <- "FEDR"
-colnames(SAND)[6] <- "FEDR"
-colnames(DUNL)[6] <- "FEDR"
-
-
-REKN$FEDR <- ifelse(REKN$FEDR == "~", "6", REKN$FEDR)
-REKN$FEDR <- ifelse(REKN$FEDR == "+", "7", REKN$FEDR)
-
-RUTU$FEDR <- ifelse(RUTU$FEDR == "~", "6", RUTU$FEDR)
-RUTU$FEDR <- ifelse(RUTU$FEDR == "+", "7", RUTU$FEDR)
-
-SESA$FEDR <- ifelse(SESA$FEDR == "~", "6", SESA$FEDR)
-SESA$FEDR <- ifelse(SESA$FEDR == "+", "7", SESA$FEDR)
-
-SAND$FEDR <- ifelse(SAND$FEDR == "~", "6", SAND$FEDR)
-SAND$FEDR <- ifelse(SAND$FEDR == "+", "7", SAND$FEDR)
-
-DUNL$FEDR <- ifelse(DUNL$FEDR == "~", "6", DUNL$FEDR)
-DUNL$FEDR <- ifelse(DUNL$FEDR == "+", "7", DUNL$FEDR)
-
-REKN$FEDR <- as.numeric(REKN$FEDR)
-RUTU$FEDR <- as.numeric(RUTU$FEDR)
-SESA$FEDR <- as.numeric(SESA$FEDR)
-SAND$FEDR <- as.numeric(SAND$FEDR)
-DUNL$FEDR <- as.numeric(DUNL$FEDR)
-
-RUTU$DC1 <- ifelse(RUTU$FEDR == 6,1,0)
-RUTU$DC2 <- ifelse(RUTU$FEDR == 7,1,0)
-RUTU$DC3 <- ifelse(RUTU$FEDR == 0,1,0)
-RUTU$DC4 <- ifelse(RUTU$FEDR == 1,1,0)
-RUTU$DC5 <- ifelse(RUTU$FEDR == 2,1,0)
-RUTU$DC6 <- ifelse(RUTU$FEDR == 3,1,0)
-RUTU$DC7 <- ifelse(RUTU$FEDR == 4,1,0)
-RUTU$DC8 <- ifelse(RUTU$FEDR == 5,1,0)
-
-SESA$DC1 <- ifelse(SESA$FEDR == 6,1,0)
-SESA$DC2 <- ifelse(SESA$FEDR == 7,1,0)
-SESA$DC3 <- ifelse(SESA$FEDR == 0,1,0)
-SESA$DC4 <- ifelse(SESA$FEDR == 1,1,0)
-SESA$DC5 <- ifelse(SESA$FEDR == 2,1,0)
-SESA$DC6 <- ifelse(SESA$FEDR == 3,1,0)
-SESA$DC7 <- ifelse(SESA$FEDR == 4,1,0)
-SESA$DC8 <- ifelse(SESA$FEDR == 5,1,0)
-
-SAND$DC1 <- ifelse(SAND$FEDR == 6,1,0)
-SAND$DC2 <- ifelse(SAND$FEDR == 7,1,0)
-SAND$DC3 <- ifelse(SAND$FEDR == 0,1,0)
-SAND$DC4 <- ifelse(SAND$FEDR == 1,1,0)
-SAND$DC5 <- ifelse(SAND$FEDR == 2,1,0)
-SAND$DC6 <- ifelse(SAND$FEDR == 3,1,0)
-SAND$DC7 <- ifelse(SAND$FEDR == 4,1,0)
-SAND$DC8 <- ifelse(SAND$FEDR == 5,1,0)
-
-DUNL$DC1 <- ifelse(DUNL$FEDR == 6,1,0)
-DUNL$DC2 <- ifelse(DUNL$FEDR == 7,1,0)
-DUNL$DC3 <- ifelse(DUNL$FEDR == 0,1,0)
-DUNL$DC4 <- ifelse(DUNL$FEDR == 1,1,0)
-DUNL$DC5 <- ifelse(DUNL$FEDR == 2,1,0)
-DUNL$DC6 <- ifelse(DUNL$FEDR == 3,1,0)
-DUNL$DC7 <- ifelse(DUNL$FEDR == 4,1,0)
-DUNL$DC8 <- ifelse(DUNL$FEDR == 5,1,0)
-
-REKN$DC1 <- ifelse(REKN$FEDR == 6,1,0)
-REKN$DC2 <- ifelse(REKN$FEDR == 7,1,0)
-REKN$DC3 <- ifelse(REKN$FEDR == 0,1,0)
-REKN$DC4 <- ifelse(REKN$FEDR == 1,1,0)
-REKN$DC5 <- ifelse(REKN$FEDR == 2,1,0)
-REKN$DC6 <- ifelse(REKN$FEDR == 3,1,0)
-REKN$DC7 <- ifelse(REKN$FEDR == 4,1,0)
-REKN$DC8 <- ifelse(REKN$FEDR == 5,1,0)
-
-#subset the relevant covariates for each species
-REKN_set_covar <- REKN[,c(1:4,6:17,20:37)]
-RUTU_set_covar <- RUTU[,c(1:4,6:17,20:37)]
-SESA_set_covar <- SESA[,c(1:4,6:17,20:37)]
-SAND_set_covar <- SAND[,c(1:4,6:17,20:37)]
-DUNL_set_covar <- DUNL[,c(1:4,6:17,20:37)]
-
+#Need to rescale the covariates prior to modelling
 #the rescaling leaves the binary variables, including dummies,
 #as 0/1 and divides the continuous variables by 2sd, exclude random effect variables
-REKN_covarSTD <- apply(REKN_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
-RUTU_covarSTD <- apply(RUTU_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
-SESA_covarSTD <- apply(SESA_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
-SAND_covarSTD <- apply(SAND_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
-DUNL_covarSTD <- apply(DUNL_set_covar[,c(1:4,6:14,17:34)],2,rescale, binary.inputs = "0/1")
+#the only continuous variables int the data set are 'dist_from_AQ',
+#'TS', 'nGulls','plane'
 
-REKN_covarSTD <- cbind(REKN_set_covar[,c(5,15:17)],REKN_covarSTD)
-colnames(REKN_covarSTD)[1:4] <- c("FEDR", "year","Nsegment","NWD")
+REKN_covarSTD <- apply(REKN[,grep("dist_from_AQ|TS|nGulls|plane",colnames(REKN))],2,rescale, binary.inputs = "0/1")
+RUTU_covarSTD <- apply(RUTU[,grep("dist_from_AQ|TS|nGulls|plane",colnames(RUTU))],2,rescale, binary.inputs = "0/1")
+SESA_covarSTD <- apply(SESA[,grep("dist_from_AQ|TS|nGulls|plane",colnames(SESA))],2,rescale, binary.inputs = "0/1")
+SAND_covarSTD <- apply(SAND[,grep("dist_from_AQ|TS|nGulls|plane",colnames(SAND))],2,rescale, binary.inputs = "0/1")
+DUNL_covarSTD <- apply(DUNL[,grep("dist_from_AQ|TS|nGulls|plane",colnames(DUNL))],2,rescale, binary.inputs = "0/1")
 
-RUTU_covarSTD <- cbind(RUTU_set_covar[,c(6,15:17)],RUTU_covarSTD)
-colnames(RUTU_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
-
-SESA_covarSTD <- cbind(SESA_set_covar[,c(6,15:17)],SESA_covarSTD)
-colnames(SESA_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
-
-SAND_covarSTD <- cbind(SAND_set_covar[,c(6,15:17)],SAND_covarSTD)
-colnames(SAND_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
-
-DUNL_covarSTD <- cbind(DUNL_set_covar[,c(6,15:17)],DUNL_covarSTD)
-colnames(DUNL_covarSTD)[1:4] <- c("FEDR","year","Nsegment","NWD")
-
-#the rescaling process resulted in certain variables being converted to NaN
-#b/c they only had 0's as the value; need to fix these for each of the 
-#standardized covariate dataframes
-is.nan.data.frame <- function(x)
-  do.call(cbind, lapply(x, is.nan))
-
-REKN_covarSTD[is.nan.data.frame(REKN_covarSTD)] <- 0
-RUTU_covarSTD[is.nan.data.frame(RUTU_covarSTD)] <- 0
-SESA_covarSTD[is.nan.data.frame(SESA_covarSTD)] <- 0
-SAND_covarSTD[is.nan.data.frame(SAND_covarSTD)] <- 0
-DUNL_covarSTD[is.nan.data.frame(DUNL_covarSTD)] <- 0
-
+REKN_covarSTD <- cbind(REKN_covarSTD,REKN[,-grep("dist_from_AQ|TS|nGulls|plane",colnames(REKN))])
+RUTU_covarSTD <- cbind(RUTU_covarSTD,RUTU[,-grep("dist_from_AQ|TS|nGulls|plane",colnames(RUTU))])
+SESA_covarSTD <- cbind(SESA_covarSTD,SESA[,-grep("dist_from_AQ|TS|nGulls|plane",colnames(SESA))])
+SAND_covarSTD <- cbind(SAND_covarSTD,SAND[,-grep("dist_from_AQ|TS|nGulls|plane",colnames(SAND))])
+DUNL_covarSTD <- cbind(DUNL_covarSTD,DUNL[,-grep("dist_from_AQ|TS|nGulls|plane",colnames(DUNL))])
 
 #for modeling in JAGS the binary variables cannot take on a
 #value of 0 so change all 0 to 1 and all 1 to 2.
@@ -257,9 +154,13 @@ DUNL_covarSTD[is.nan.data.frame(DUNL_covarSTD)] <- 0
 #specifically the functions says 'are all values in 'x' within the sequence 0 to 1
 binary_check <- function(x) { all(x %in% 0:1) }
 
-#apply the binary_check function to subset the column names of a species
+#apply the binary_check function and subset the column names of a species
 #standardized covariate dataframe if they are binary
 REKN_Vars <- colnames(REKN_covarSTD)[apply(REKN_covarSTD,2,binary_check)]
+
+#function works, but need to remove the response variable 'spp_occupancy'
+#from the variable set
+REKN_Vars <- REKN_Vars[-grep("rekn_occupancy",REKN_Vars)]
 
 #Using only the subsetted columns names for those binary variables now
 #change the 0's to 1's and 1's to 2's
@@ -267,79 +168,74 @@ REKN_covarSTD[,REKN_Vars] <- lapply(REKN_covarSTD[,REKN_Vars],function(x) ifelse
 
 #repeat for the other 4 species
 RUTU_Vars <- colnames(RUTU_covarSTD)[apply(RUTU_covarSTD,2,binary_check)]
+RUTU_Vars <- RUTU_Vars[-grep("rutu_occupancy",RUTU_Vars)]
 RUTU_covarSTD[,RUTU_Vars] <- lapply(RUTU_covarSTD[,RUTU_Vars],function(x) ifelse(x==1,2,1))
 
 SESA_Vars <- colnames(SESA_covarSTD)[apply(SESA_covarSTD,2,binary_check)]
+SESA_Vars <- SESA_Vars[-grep("sesa_occupancy",SESA_Vars)]
 SESA_covarSTD[,SESA_Vars] <- lapply(SESA_covarSTD[,SESA_Vars],function(x) ifelse(x==1,2,1))
 
 SAND_Vars <- colnames(SAND_covarSTD)[apply(SAND_covarSTD,2,binary_check)]
+SAND_Vars <- SAND_Vars[-grep("sand_occupancy",SAND_Vars)]
 SAND_covarSTD[,SAND_Vars] <- lapply(SAND_covarSTD[,SAND_Vars],function(x) ifelse(x==1,2,1))
 
 DUNL_Vars <- colnames(DUNL_covarSTD)[apply(DUNL_covarSTD,2,binary_check)]
+DUNL_Vars <- DUNL_Vars[-grep("dunl_occupancy",DUNL_Vars)]
 DUNL_covarSTD[,DUNL_Vars] <- lapply(DUNL_covarSTD[,DUNL_Vars],function(x) ifelse(x==1,2,1))
 
-#combine the species-specific counts with their standardized covariates
-REKN_final <- cbind(REKN$`REKN TIS`,REKN_covarSTD)
-colnames(REKN_final)[1] <- "REKN"
-
-RUTU_final <- cbind(RUTU$`RUTU TIS`,RUTU_covarSTD)
-colnames(RUTU_final)[1] <- "RUTU"
-
-SESA_final <- cbind(SESA$`SESA TIS`,SESA_covarSTD)
-colnames(SESA_final)[1] <- "SESA"
-
-SAND_final <- cbind(SAND$`SAND TIS`,SAND_covarSTD)
-colnames(SAND_final)[1] <- "SAND"
-
-DUNL_final <- cbind(DUNL$`DUNL TIS`,DUNL_covarSTD)
-colnames(DUNL_final)[1] <- "DUNL"
+#set the final species specific dataframes
+REKN_final <- REKN_covarSTD
+RUTU_final <- RUTU_covarSTD
+SESA_final <- SESA_covarSTD
+SAND_final <- SAND_covarSTD
+DUNL_final <- DUNL_covarSTD
 
 #write out the cleaned data sets that will
 #be used for fitting the models
-write_tsv(REKN_final,path=paste(pathtofiles,"DataForFitting/REKN_fitting012818.txt",sep=""),col_names=TRUE)
-write_tsv(RUTU_final,path=paste(pathtofiles,"DataForFitting/RUTU_fitting012818.txt",sep=""),col_names=TRUE)
-write_tsv(SESA_final,path=paste(pathtofiles,"DataForFitting/SESA_fitting012818.txt",sep=""),col_names=TRUE)
-write_tsv(SAND_final,path=paste(pathtofiles,"DataForFitting/SAND_fitting012818.txt",sep=""),col_names=TRUE)
-write_tsv(DUNL_final,path=paste(pathtofiles,"DataForFitting/DUNL_fitting012818.txt",sep=""),col_names=TRUE)
+write_tsv(REKN_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","REKN_fittingPA031918.txt"),col_names=TRUE)
+write_tsv(RUTU_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","RUTU_fittingPA031918.txt"),col_names=TRUE)
+write_tsv(SESA_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SESA_fittingPA031918.txt"),col_names=TRUE)
+write_tsv(SAND_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SAND_fittingPA031918.txt"),col_names=TRUE)
+write_tsv(DUNL_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","DUNL_fittingPA031918.txt"),col_names=TRUE)
 
 #write up some initial values for fit statistic "NREKN.new","seg_rand","WD_rand"
-NREKN.new <- as.data.frame(rep(1,times=nrow(REKN_final)))
-colnames(NREKN.new)<-"NREKN.new[]"
+NREKN.newPA <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(NREKN.newPA)<-"NREKN.newPA[]"
 
-NRUTU.new <- as.data.frame(rep(1,times=nrow(RUTU_final)))
-colnames(NRUTU.new)<-"NRUTU.new[]"
+NRUTU.newPA <- as.data.frame(rep(1,times=nrow(RUTU_final)))
+colnames(NRUTU.newPA)<-"NRUTU.newPA[]"
 
-NSESA.new <- as.data.frame(rep(1,times=nrow(SESA_final)))
-colnames(NSESA.new)<-"NSESA.new[]"
+NSESA.newPA <- as.data.frame(rep(1,times=nrow(SESA_final)))
+colnames(NSESA.newPA)<-"NSESA.newPA[]"
 
-NSAND.new <- as.data.frame(rep(1,times=nrow(SAND_final)))
-colnames(NSAND.new)<-"NSAND.new[]"
+NSAND.newPA <- as.data.frame(rep(1,times=nrow(SAND_final)))
+colnames(NSAND.newPA)<-"NSAND.newPA[]"
 
-NDUNL.new <- as.data.frame(rep(1,times=nrow(DUNL_final)))
-colnames(NDUNL.new)<-"NDUNL.new[]"
+NDUNL.newPA <- as.data.frame(rep(1,times=nrow(DUNL_final)))
+colnames(NDUNL.newPA)<-"NDUNL.newPA[]"
 
-seg_rand <- as.data.frame(as.integer(rep(1,times=length(unique(REKN_final$Nsegment)))))
-colnames(seg_rand) <- "seg_rand[]"
+seg_randPA <- as.data.frame(as.integer(rep(1,times=length(unique(REKN_final$Nsegment)))))
+colnames(seg_randPA) <- "seg_randPA[]"
 
-WD_rand <- as.data.frame(as.integer(rep(1,time=length(unique(REKN_final$NWD)))))
-colnames(WD_rand) <- "WD_rand[]"
+WD_randPA <- as.data.frame(as.integer(rep(1,time=length(unique(REKN_final$NWD)))))
+colnames(WD_randPA) <- "WD_randPA[]"
 
-w <- as.data.frame(rep(1,times=nrow(REKN_final)))
-colnames(w)<-"w[]"
+wPA <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(wPA)<-"wPA[]"
 
-eps <- as.data.frame(rep(1,times=nrow(REKN_final)))
-colnames(eps)<-"eps[]"
+epsPA <- as.data.frame(rep(1,times=nrow(REKN_final)))
+colnames(epsPA)<-"epsPA[]"
 
-write.table(NREKN.new,file=paste(pathtofiles,"InitialValuesFiles/NREKN.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(NRUTU.new,file=paste(pathtofiles,"InitialValuesFiles/NRUTU.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(NSESA.new,file=paste(pathtofiles,"InitialValuesFiles/NSESA.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(NSAND.new,file=paste(pathtofiles,"InitialValuesFiles/NSAND.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(NDUNL.new,file=paste(pathtofiles,"InitialValuesFiles/NDUNL.new_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write_tsv(NREKN.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NREKN.newPA_inits.txt"),col_names=TRUE)
+write_tsv(NRUTU.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NRUTU.newPA_inits.txt"),col_names=TRUE)
+write_tsv(NSESA.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NSESA.newPA_inits.txt"),col_names=TRUE)
+write_tsv(NSAND.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NSAND.newPA_inits.txt"),col_names=TRUE)
+write_tsv(NDUNL.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NDUNL.newPA_inits.txt"),col_names=TRUE)
 
-write.table(seg_rand,file=paste(pathtofiles,"InitialValuesFiles/seg_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(WD_rand,file=paste(pathtofiles,"InitialValuesFiles/WD_rand_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(w,file=paste(pathtofiles,"InitialValuesFiles/w_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
-write.table(eps,file=paste(pathtofiles,"InitialValuesFiles/eps_inits.txt",sep=""),sep="\t",col.names=TRUE,row.names=F)
+write_tsv(seg_randPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","seg_randPA.txt"),col_names=TRUE)
+write_tsv(WD_randPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","WD_randPA.txt"),col_names=TRUE)
+write_tsv(wPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","wPA.txt"),col_names=TRUE)
+write_tsv(epsPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","epsPA.txt"),col_names=TRUE)
 
 #BEFORE ANY OF THE FILES CAN BE USED IN JAGS THE WORD "END" HAS TO BE ADDED
 #TO THE LAST ROW AND THE FILES SHOULD BE LEFT JUSTIFIED
