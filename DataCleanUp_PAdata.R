@@ -30,13 +30,13 @@ names(RawCensus) <- gsub("*.flock_edge_location","FEL",names(RawCensus))
 names(RawCensus) <- gsub("*.flock_edge_distance_to_racks","FEDR",names(RawCensus))
 names(RawCensus) <- gsub("*.flock_edge_distance_to_tending","FEDT",names(RawCensus))
 names(RawCensus) <- gsub(".*Window","TW",names(RawCensus))
-names(RawCensus) <- gsub("total_shorebirds_in.*","TS",names(RawCensus))
+names(RawCensus) <- gsub("total_number_shorebirds_in.*","TS",names(RawCensus))
 names(RawCensus) <- gsub("*.in_segment","IS",names(RawCensus))
 names(RawCensus) <- gsub("nearest_rack.*","tending",names(RawCensus))
-names(RawCensus) <- gsub("x_planes.*","plane",names(RawCensus))
-names(RawCensus) <- gsub("segint","segment",names(RawCensus))
-names(RawCensus) <- gsub("x_gulls","nGulls",names(RawCensus))
-names(RawCensus) <- gsub("x_segments.*","dist_from_AQ",names(RawCensus))
+names(RawCensus) <- gsub("number_planes.*","plane",names(RawCensus))
+names(RawCensus) <- gsub("seg_int","segment",names(RawCensus))
+names(RawCensus) <- gsub("number_gulls","nGulls",names(RawCensus))
+names(RawCensus) <- gsub("number_segments.*","dist_from_AQ",names(RawCensus))
 
 #change the date column to a true date using lubridate::mdy
 RawCensus$date <- mdy(RawCensus$date)
@@ -66,7 +66,7 @@ RawCensus$habitat <- as.factor(RawCensus$habitat)
 RawCensus$tide <- as.factor(RawCensus$tide)
 
 #drop column 'observationoccuredduring4hrtendingwindow_1_0'
-RawCensus <- RawCensus[, -grep("observationoccured.*", colnames(RawCensus))]
+RawCensus <- RawCensus[, -grep("observation_occured.*", colnames(RawCensus))]
 
 #records have already been subsetted to include only those in 
 #tending window, so now I'm going to subset only the
@@ -94,6 +94,9 @@ OnlyTending$Ntide <- as.numeric.factor(OnlyTending$tide)
 OnlyTending$shore_hab <- OnlyTending$tide  <- NULL
 
 fit_set <- OnlyTending
+
+#remove OnlyTending and RawCensus from memory
+OnlyTending <- RawCensus <- NULL
 
 #need to code the categorical variables as dummy variables 
 #to ease their coding in WinBUGS; This requires
@@ -214,11 +217,8 @@ colnames(NSAND.newPA)<-"NSAND.newPA[]"
 NDUNL.newPA <- as.data.frame(rep(1,times=nrow(DUNL_final)))
 colnames(NDUNL.newPA)<-"NDUNL.newPA[]"
 
-seg_randPA <- as.data.frame(as.integer(rep(1,times=length(unique(REKN_final$Nsegment)))))
+seg_randPA <- as.data.frame(as.integer(rep(1,times=length(unique(REKN_final$segment)))))
 colnames(seg_randPA) <- "seg_randPA[]"
-
-WD_randPA <- as.data.frame(as.integer(rep(1,time=length(unique(REKN_final$NWD)))))
-colnames(WD_randPA) <- "WD_randPA[]"
 
 wPA <- as.data.frame(rep(1,times=nrow(REKN_final)))
 colnames(wPA)<-"wPA[]"
@@ -233,7 +233,6 @@ write_tsv(NSAND.newPA,path=here("Shorebird_aquaculture_project","InitialValueFil
 write_tsv(NDUNL.newPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","NDUNL.newPA_inits.txt"),col_names=TRUE)
 
 write_tsv(seg_randPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","seg_randPA.txt"),col_names=TRUE)
-write_tsv(WD_randPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","WD_randPA.txt"),col_names=TRUE)
 write_tsv(wPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","wPA.txt"),col_names=TRUE)
 write_tsv(epsPA,path=here("Shorebird_aquaculture_project","InitialValueFiles","epsPA.txt"),col_names=TRUE)
 
