@@ -195,11 +195,11 @@ DUNL_final <- DUNL_covarSTD
 
 #write out the cleaned data sets that will
 #be used for fitting the models
-write_tsv(REKN_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","REKN_fittingPA031918.txt"),col_names=TRUE)
-write_tsv(RUTU_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","RUTU_fittingPA031918.txt"),col_names=TRUE)
-write_tsv(SESA_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SESA_fittingPA031918.txt"),col_names=TRUE)
-write_tsv(SAND_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SAND_fittingPA031918.txt"),col_names=TRUE)
-write_tsv(DUNL_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","DUNL_fittingPA031918.txt"),col_names=TRUE)
+write_tsv(REKN_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","REKN_fittingPA032118.txt"),col_names=TRUE)
+write_tsv(RUTU_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","RUTU_fittingPA032118.txt"),col_names=TRUE)
+write_tsv(SESA_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SESA_fittingPA032118.txt"),col_names=TRUE)
+write_tsv(SAND_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","SAND_fittingPA032118.txt"),col_names=TRUE)
+write_tsv(DUNL_final,path=here("Shorebird_aquaculture_project","DataForModelFitting","DUNL_fittingPA032118.txt"),col_names=TRUE)
 
 #write up some initial values for fit statistic "NREKN.new","seg_rand","WD_rand"
 NREKN.newPA <- as.data.frame(rep(1,times=nrow(REKN_final)))
