@@ -30,12 +30,12 @@ N <- as.numeric(nrow(comdata))
 segment <- as.integer(nrow(seg_rand)) 
 
 #initial values for parameters
-Beta_TS=1
+Beta_plane=1
 alpha.lam=1
 tau.disp=3
 
 #JAGS only accepts initial values put into a list or a function
-initsFunction = function() {list(Beta_TS=Beta_TS,
+initsFunction = function() {list(Beta_plane=Beta_plane,
                                  alpha.lam=alpha.lam,tau.disp=tau.disp,eps=eps)}
 
 #z is a temporary list; each list element contains a single data column from comdata
@@ -55,7 +55,7 @@ data <- list('N','rekn_occupancy','year','segment','TS','nGulls',
              'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat')
 
 #tells JAGS which parameters to monitor
-params<-c("Beta_TS",
+params<-c("Beta_plane",
           "alpha.lam","fit","fit.new","tau.disp","bpvalue")
 
 start <- Sys.time()
@@ -73,8 +73,8 @@ writeLines("
            
            alpha.lam~dnorm(0,0.1)
            
-           Beta_TS~dnorm(0,0.1)
-           
+           Beta_plane~dnorm(0,0.1)
+
            # i obs random effect
            for (i in 1:N) {
            eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
@@ -93,7 +93,7 @@ writeLines("
            
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] +eps[i]
+           logit(p.occ[i]) <- alpha.lam + Beta_plane*plane[i] +eps[i]
            
            # Fit assessments
            
@@ -120,10 +120,10 @@ writeLines("
            
            
            
-           ", con = here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_TotShorebirdsModel.txt"))
+           ", con = here("Shorebird_aquaculture_project","REKN_Models","REKN_OccupancyModels", "LogRegression_PlanesModel.txt"))
 
 #Identify filepath of model file;
-modfile <- here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_TotShorebirdsModel.txt")
+modfile <- here("Shorebird_aquaculture_project","REKN_Models", "REKN_OccupancyModels", "LogRegression_PlanesModel.txt")
 
 #create JAGS model object 'out' using the jags function of package jagsUI             
 out <- jags(data = data,
@@ -133,15 +133,15 @@ out <- jags(data = data,
             modules=c('glm','dic'),
             n.chains = 2,
             n.adapt = 100,
-            n.iter = 40000,
+            n.iter = 60000,
             n.burnin = 10000,
             n.thin = 2,
             parallel=TRUE,
             seed=as.integer(Sys.time()),
             n.cores=2)
 
-sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputLogRegression_TotShorebirdsModel.txt"))
-#out <- update(out,n.iter = 30000)
+sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","REKN_OccupancyModels", "outputLogRegression_PlanesModel.txt"))
+#out <- update(out,n.iter = 60000)
 out
 sink()
 

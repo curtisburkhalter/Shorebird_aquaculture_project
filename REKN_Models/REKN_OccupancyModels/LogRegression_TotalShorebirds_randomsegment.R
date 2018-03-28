@@ -7,6 +7,7 @@ suppressMessages(library(tidyverse))
 #read in data and initial value files; using "../" moves you up one directory
 seg_rand <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","seg_randPA.txt"),header=TRUE)
 names(seg_rand)<-NULL
+seg_rand <- as.integer(seg_rand[,1])
 
 NREKN.new <- read.delim(file=here("Shorebird_aquaculture_project","InitialValueFiles","NREKN.newPA_inits.txt"),header=TRUE)
 names(NREKN.new) <- NULL
@@ -19,6 +20,7 @@ eps <- as.integer(eps[,1])
 comdata <- read.delim(file=here("Shorebird_aquaculture_project","DataForModelFitting","REKN_fittingPA032118.txt"),header=T)
 comdata$time <- NULL
 comdata$habitat <- as.integer(comdata$habitat)
+comdata$segment <- comdata$segment+12
 
 #put the column names for the count and covariate data into a vector
 comdata_names <- names(comdata) 
@@ -27,7 +29,7 @@ comdata_names <- names(comdata)
 N <- as.numeric(nrow(comdata))
 
 #number of unique segments; use minus 1 b/c the last row is "END"
-segment <- as.integer(nrow(seg_rand)) 
+Nsegment <- as.integer(length(seg_rand)) 
 
 #initial values for parameters
 Beta_TS=1
@@ -36,7 +38,7 @@ tau.disp=3
 
 #JAGS only accepts initial values put into a list or a function
 initsFunction = function() {list(Beta_TS=Beta_TS,
-                                 alpha.lam=alpha.lam,tau.disp=tau.disp,eps=eps)}
+                                 alpha.lam=alpha.lam,tau.disp=tau.disp,seg_rand=seg_rand)}
 
 #z is a temporary list; each list element contains a single data column from comdata
 z<-tapply(as.list(comdata), gl(ncol(comdata),1), as.data.frame)
@@ -52,7 +54,7 @@ for(i in comdata_names) {
 #package the data to be used in JAGS by providing the dataset names
 data <- list('N','rekn_occupancy','year','segment','TS','nGulls',
              'tending','plane','day','Bulk','Dune','Phrag',
-             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat')
+             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat','Nsegment')
 
 #tells JAGS which parameters to monitor
 params<-c("Beta_TS",
@@ -69,15 +71,15 @@ writeLines("
            #Priors
            ############################################################
            
-          
+           
            
            alpha.lam~dnorm(0,0.1)
            
            Beta_TS~dnorm(0,0.1)
            
-           # i obs random effect
-           for (i in 1:N) {
-           eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
+           # j segment random effect
+           for (j in 1:Nsegment) {
+           seg_rand[j]~dnorm(0,tau.disp) #random segment effect
            }
            
            #hyperprior on random observation effects precision
@@ -90,21 +92,21 @@ writeLines("
            
            for (i in 1:N){											# Open i likelihood bracket; corresponds to obs
            #n observations
-           
+              
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] +eps[i]
+           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] + seg_rand[segment[i]]
            
            # Fit assessments
            
            residual[i] <- abs(rekn_occupancy[i] - p.occ[i])
-
+           
            
            # Generate replicate datasets
            NREKN.new[i] ~ dbern(p.occ[i])
            residual.new[i] <- abs(NREKN.new[i]-p.occ[i])
            
-           
+              
            } # close i likelihood bracket
            
            ############################################################
@@ -133,7 +135,7 @@ out <- jags(data = data,
             modules=c('glm','dic'),
             n.chains = 2,
             n.adapt = 100,
-            n.iter = 40000,
+            n.iter = 60000,
             n.burnin = 10000,
             n.thin = 2,
             parallel=TRUE,

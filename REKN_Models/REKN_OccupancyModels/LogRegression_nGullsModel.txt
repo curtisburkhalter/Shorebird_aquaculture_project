@@ -1,0 +1,60 @@
+
+           
+           model {											#Open overall model bracket
+           
+           ############################################################
+           #Priors
+           ############################################################
+           
+           
+           
+           alpha.lam~dnorm(0,0.1)
+           
+           Beta_nGulls~dnorm(0,0.1)
+           
+           # i obs random effect
+           for (i in 1:N) {
+           eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
+           }
+           
+           #hyperprior on random observation effects precision
+           tau.disp ~ dgamma(0.1,0.001)
+           
+           
+           ############################################################
+           #Likelihood specification
+           ############################################################
+           
+           for (i in 1:N){											# Open i likelihood bracket; corresponds to obs
+           #n observations
+           
+           rekn_occupancy[i] ~ dbern(p.occ[i]) 
+           
+           logit(p.occ[i]) <- alpha.lam + Beta_nGulls*nGulls[i] +eps[i]
+           
+           # Fit assessments
+           
+           residual[i] <- abs(rekn_occupancy[i] - p.occ[i])
+           
+           
+           # Generate replicate datasets
+           NREKN.new[i] ~ dbern(p.occ[i])
+           residual.new[i] <- abs(NREKN.new[i]-p.occ[i])
+           
+           
+           } # close i likelihood bracket
+           
+           ############################################################
+           #Derived quantities
+           ############################################################
+           # Add up discrepancy measures
+           fit <- sum(residual[])
+           fit.new <- sum(residual.new[])
+           test <- step(fit.new-fit)
+           bpvalue <- mean(test)
+           } #close model
+           
+           
+           
+           
+           
