@@ -29,6 +29,7 @@ N <- as.numeric(nrow(comdata))
 #number of unique segments; use minus 1 b/c the last row is "END"
 segment <- as.integer(nrow(seg_rand)) 
 
+
 #initial values for parameters
 Beta_TS=1
 alpha.lam=1
