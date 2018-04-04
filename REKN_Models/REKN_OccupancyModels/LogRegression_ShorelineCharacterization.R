@@ -30,12 +30,12 @@ N <- as.numeric(nrow(comdata))
 segment <- as.integer(nrow(seg_rand)) 
 
 #initial values for parameters
-Beta_plane=1
+Beta_NSH=c(NA,1,1,1,1,1)
 alpha.lam=1
 tau.disp=3
 
 #JAGS only accepts initial values put into a list or a function
-initsFunction = function() {list(Beta_plane=Beta_plane,
+initsFunction = function() {list(Beta_NSH=Beta_NSH,
                                  alpha.lam=alpha.lam,tau.disp=tau.disp,eps=eps)}
 
 #z is a temporary list; each list element contains a single data column from comdata
@@ -52,10 +52,10 @@ for(i in comdata_names) {
 #package the data to be used in JAGS by providing the dataset names
 data <- list('N','rekn_occupancy','year','segment','TS','nGulls',
              'tending','plane','day','Bulk','Dune','Phrag',
-             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat')
+             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat','NSH')
 
 #tells JAGS which parameters to monitor
-params<-c("Beta_plane",
+params<-c("Beta_NSH",
           "alpha.lam","fit","fit.new","tau.disp","bpvalue")
 
 start <- Sys.time()
@@ -69,12 +69,17 @@ writeLines("
            #Priors
            ############################################################
            
-          
+           
            
            alpha.lam~dnorm(0,0.1)
            
-           Beta_plane~dnorm(0,0.1)
-
+           Beta_NSH[1] <- 0
+           Beta_NSH[2]~dnorm(0,0.1)
+           Beta_NSH[3]~dnorm(0,0.1)
+           Beta_NSH[4]~dnorm(0,0.1)
+           Beta_NSH[5]~dnorm(0,0.1)
+           Beta_NSH[6]~dnorm(0,0.1)
+           
            # i obs random effect
            for (i in 1:N) {
            eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
@@ -93,12 +98,12 @@ writeLines("
            
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_plane*plane[i] +eps[i]
+           logit(p.occ[i]) <- alpha.lam + Beta_NSH[NSH[i]] +eps[i]
            
            # Fit assessments
            
            residual[i] <- abs(rekn_occupancy[i] - p.occ[i])
-
+           
            
            # Generate replicate datasets
            NREKN.new[i] ~ dbern(p.occ[i])
@@ -120,10 +125,10 @@ writeLines("
            
            
            
-           ", con = here("Shorebird_aquaculture_project","REKN_Models","REKN_OccupancyModels", "LogRegression_PlanesModel.txt"))
+           ", con = here("Shorebird_aquaculture_project","REKN_Models","REKN_OccupancyModels", "LogRegression_ShorelineCharacterizationModel.txt"))
 
 #Identify filepath of model file;
-modfile <- here("Shorebird_aquaculture_project","REKN_Models", "REKN_OccupancyModels", "LogRegression_PlanesModel.txt")
+modfile <- here("Shorebird_aquaculture_project","REKN_Models", "REKN_OccupancyModels", "LogRegression_ShorelineCharacterizationModel.txt")
 
 #create JAGS model object 'out' using the jags function of package jagsUI             
 out <- jags(data = data,
@@ -140,7 +145,7 @@ out <- jags(data = data,
             seed=as.integer(Sys.time()),
             n.cores=2)
 
-sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputLogRegression_PlanesModel.txt"))
+sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputLogRegression_ShorelineCharacterizationModel.txt"))
 out <- update(out,n.iter = 60000)
 out
 sink()
