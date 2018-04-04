@@ -34,14 +34,19 @@ N <- as.numeric(nrow(comdata))
 #number of unique segments
 Nsegment <- as.integer(length(seg_rand)) 
 
+Nyear <- as.integer(length(unique(comdata$year)))
+
 #initial values for parameters
+Beta_habitat=c(NA,1,1)
 Beta_TS=1
 alpha.lam=1
 tau.seg=3
+year_rand = c(1,1)
+tau.year = 3
 
 #JAGS only accepts initial values put into a list or a function
-initsFunction = function() {list(Beta_TS=Beta_TS,
-                                 alpha.lam=alpha.lam,tau.seg=tau.seg,seg_rand=seg_rand)}
+initsFunction = function() {list(Beta_habitat=Beta_habitat,Beta_TS=Beta_TS,
+                                 alpha.lam=alpha.lam,tau.seg=tau.seg,seg_rand=seg_rand,year_rand=year_rand,tau.year=tau.year)}
 
 #z is a temporary list; each list element contains a single data column from comdata
 z<-tapply(as.list(comdata), gl(ncol(comdata),1), as.data.frame)
@@ -54,14 +59,15 @@ for(i in comdata_names) {
   assign(i, z[[i]])
 }
 
+year <- ifelse (year == 2017, 1 , 2)
 
 #package the data to be used in JAGS by providing the dataset names
 data <- list('N','rekn_occupancy','year','segment','TS','nGulls',
              'tending','plane','day','Bulk','Dune','Phrag',
-             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat','Nsegment')
+             'Marsh','Creek','Woodland','FT','LT','RT', 'dist_from_AQ','habitat','Nsegment','Nyear')
 
 #tells JAGS which parameters to monitor
-params<-c("Beta_TS",
+params<-c("Beta_habitat","Beta_TS",
           "alpha.lam","fit","fit.new","tau.seg","bpvalue")
 
 #remove variable "i" from global environment
@@ -82,16 +88,24 @@ writeLines("
            
            alpha.lam~dnorm(0,0.1)
            
+           Beta_habitat[1]<-0
+           Beta_habitat[2]~dnorm(0,0.1)
+           Beta_habitat[3]~dnorm(0,0.1)
            Beta_TS~dnorm(0,0.1)
-           
+
            # j segment random effect
            for (j in 1:Nsegment) {
            seg_rand[j]~dnorm(0,tau.seg) #random segment effect
            }
            
+           # y year random effect
+           for (y in 1:Nyear) {
+           year_rand[y]~dnorm(0,tau.year) #random segment effect
+           }
+           
            #hyperprior on random segment effects precision
            tau.seg ~ dgamma(0.1,0.001)
-           
+           tau.year ~ dgamma(0.1,0.001)
            
            ############################################################
            #Likelihood specification
@@ -99,10 +113,10 @@ writeLines("
            
            for (i in 1:N){											# Open i likelihood bracket; corresponds to obs
            #n observations
-              
+           
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] + seg_rand[segment[i]]
+           logit(p.occ[i]) <- alpha.lam + Beta_habitat[habitat[i]] + Beta_TS*TS[i] + seg_rand[segment[i]] + year_rand[year[i]]
            
            # Fit assessments
            
@@ -113,7 +127,7 @@ writeLines("
            NREKN.new[i] ~ dbern(p.occ[i])
            residual.new[i] <- abs(NREKN.new[i]-p.occ[i])
            
-              
+           
            } # close i likelihood bracket
            
            ############################################################
@@ -129,10 +143,10 @@ writeLines("
            
            
            
-           ", con = here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_TotShorebirdsRandomSegmentModel.txt"))
+           ", con = here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_HabitatTotalShorebirdsRandomSegmentandYearModel.txt"))
 
 #Identify filepath of model file;
-modfile <- here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_TotShorebirdsRandomSegmentModel.txt")
+modfile <- here("Shorebird_aquaculture_project","REKN_Models", "LogRegression_HabitatTotalShorebirdsRandomSegmentandYearModel.txt")
 
 #create JAGS model object 'out' using the jags function of package jagsUI             
 out <- jags(data = data,
@@ -142,15 +156,15 @@ out <- jags(data = data,
             modules=c('glm','dic'),
             n.chains = 2,
             n.adapt = 100,
-            n.iter = 60000,
+            n.iter = 150000,
             n.burnin = 10000,
             n.thin = 2,
             parallel=TRUE,
             seed=as.integer(Sys.time()),
             n.cores=2)
 
-sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputLogRegression_TotShorebirds_RandomSegmentModel.txt"))
-#out <- update(out,n.iter = 30000)
+sink(file=here("Shorebird_aquaculture_project","OutputFiles","REKN","outputLogRegression_HabitatTotalShorebirds_RandomSegmentandYearModel.txt"))
+#out <- update(out,n.iter = 50000)
 out
 sink()
 
