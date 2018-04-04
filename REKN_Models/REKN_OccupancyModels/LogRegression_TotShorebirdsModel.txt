@@ -6,15 +6,15 @@
            #Priors
            ############################################################
            
-           
+          
            
            alpha.lam~dnorm(0,0.1)
            
            Beta_TS~dnorm(0,0.1)
            
            # i obs random effect
-           for (i in 1:nrow(seg_rand)) {
-           seg_rand[i]~dnorm(0,tau.disp)#I(-20,20)  #random segment effect
+           for (i in 1:N) {
+           eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
            }
            
            #hyperprior on random observation effects precision
@@ -30,12 +30,12 @@
            
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] + seg_rand[segment[i]]
+           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] +eps[i]
            
            # Fit assessments
            
            residual[i] <- abs(rekn_occupancy[i] - p.occ[i])
-           
+
            
            # Generate replicate datasets
            NREKN.new[i] ~ dbern(p.occ[i])

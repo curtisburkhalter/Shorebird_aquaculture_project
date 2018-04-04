@@ -10,11 +10,16 @@
            
            alpha.lam~dnorm(0,0.1)
            
-           Beta_TS~dnorm(0,0.1)
+           Beta_NSH[1] <- 0
+           Beta_NSH[2]~dnorm(0,0.1)
+           Beta_NSH[3]~dnorm(0,0.1)
+           Beta_NSH[4]~dnorm(0,0.1)
+           Beta_NSH[5]~dnorm(0,0.1)
+           Beta_NSH[6]~dnorm(0,0.1)
            
-           # j segment random effect
-           for (j in 1:Nsegment) {
-           seg_rand[j]~dnorm(0,tau.disp) #random segment effect
+           # i obs random effect
+           for (i in 1:N) {
+           eps[i]~dnorm(0,tau.disp)#I(-20,20)  #random observation effect
            }
            
            #hyperprior on random observation effects precision
@@ -27,10 +32,10 @@
            
            for (i in 1:N){											# Open i likelihood bracket; corresponds to obs
            #n observations
-              
+           
            rekn_occupancy[i] ~ dbern(p.occ[i]) 
            
-           logit(p.occ[i]) <- alpha.lam + Beta_TS*TS[i] + seg_rand[segment[i]]
+           logit(p.occ[i]) <- alpha.lam + Beta_NSH[NSH[i]] +eps[i]
            
            # Fit assessments
            
@@ -41,7 +46,7 @@
            NREKN.new[i] ~ dbern(p.occ[i])
            residual.new[i] <- abs(NREKN.new[i]-p.occ[i])
            
-              
+           
            } # close i likelihood bracket
            
            ############################################################
